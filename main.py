@@ -1,82 +1,64 @@
-from os import listdir, wait, mkdir
-from typing import Any
-from os.path import isfile, join
-from os import path
-import pickle
+from os import listdir 
+from os.path import isfile, join, splitext
 
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from sklearn.datasets import make_blobs, make_circles
 from IPython.display import display
 from sklearn import metrics  # for evaluations
 from sklearn.cluster import DBSCAN
+from sklearn.datasets import make_blobs, make_circles
 from sklearn.preprocessing import StandardScaler  # for feature scaling
 
-from tools import get_data
+from tools import serialize_data, deserialize_data
 
-def make_pickle_file(file_name, data):
-    with open(f"{file_name}.pickle", "wb") as outfile:
-        pickle.dump(data, outfile)
+def json_to_df() -> list[pd.DataFrame]:
+    """
+    Build dataframes from JSON files each one representing a time series
+    """
 
-def unpick_pickle_file(file_name):
-    with open(file_name, 'rb') as f:
-        data = pickle.load(f)
-    
-    return data
-
-def serialize_data(data, file_name: str):
-    if not path.exists('./serialized_data'):
-        mkdir('./serialized_data')
-
-    make_pickle_file(file_name, data)
-
-def deserialize_data(file_name):
-    if path.exists(file_name):
-        data = unpick_pickle_file(file_name)
-        return data
-    
-    else: return None
-
-def load_data_json():
     json_files = [
-        f"./data/{file}" for file in listdir("./data") if isfile(join("./data", file))
+        (f"./data/{f_name}", splitext(f_name)[0]) for f_name in listdir("./data") if isfile(join("./data", f_name))
     ]
 
-    file1 = json_files[0]
-    first = pd.read_json(file1)
-    merged_raw_data = first
+    procc_dfs = []
 
-    for file in json_files[1:]:
-        json_readed = pd.read_json(file)
-        merged_raw_data = pd.concat([merged_raw_data, json_readed], axis=0)
+    for f_path, f_name in json_files:
+        file = pd.read_json(f_path)
 
-    accel_raw = merged_raw_data[["accelerometer"]].copy()
-    speed_raw = merged_raw_data[["speed"]].copy()
+        accel_raw = file[["accelerometer"]].copy()
+        speed_raw = file[["speed"]].copy()
+        procc_data = []
 
-    data_procc = []
+        for index in range(len(accel_raw)):
+            for list in accel_raw.iloc[index]:
+                procc_data.append([elem for elem in list])
 
-    for index in range(len(accel_raw)):
-        for list in accel_raw.iloc[index]:
-            data_procc.append([elem for elem in list])
+            procc_data[-1].append(speed_raw.iloc[index][0])
 
-        data_procc[-1].append(speed_raw.iloc[index][0])
+        procc_df = pd.DataFrame(
+            procc_data, columns=["Accel X", "Accel Y", "Accel Z", "Speed"]
+        )
+        procc_dfs.append(procc_df)
+        serialize_data(procc_df, f"./serialized_data/{f_name}")
 
-    procc_df = pd.DataFrame(data_procc, columns=["Accel X", "Accel Y", "Accel Z", "Speed"])
-    serialize_data(procc_df, './serialized_data/data_df')
-    return procc_df
+    return procc_dfs
 
 def main():
-    procc_df = deserialize_data('./serialized_data/data_df.pickle')
-    if not isinstance(procc_df, pd.DataFrame):
-        procc_df = load_data_json()
-    
-    print(f"\n{procc_df}")
+
+    procc_dfs = []
+    for pickle_file in listdir("./serialized_data"):
+        procc_dfs.append(deserialize_data(f"./serialized_data/{pickle_file}"))
+
+    if not procc_dfs:
+        procc_dfs = json_to_df()
+
+    print(f"\n{procc_dfs[0]}")
     # z_vs_x = procc_df[["Accel X", "Accel Z"]]
     # z_vs_x_thousand = procc_df.iloc[1:1000]
     # z_vs_x_thousand = z_vs_x_thousand[["Accel X", "Accel Y"]]
-    
+
     # values = z_vs_x_thousand.values
     # values = StandardScaler().fit_transform(values)
 
@@ -84,6 +66,7 @@ def main():
     # print(f"\n{y_pred}")
     # print(f"\n{values}")
     # plt.scatter(values[:, 0], values[:, -1], c=y_pred)
+
 
 if __name__ == "__main__":
     main()

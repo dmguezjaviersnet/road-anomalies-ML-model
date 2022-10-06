@@ -1,20 +1,45 @@
-import json
+from os import mkdir, path
+import pickle
 
-def read_json(filename: str):
-    f = open(filename)
-    data = json.load(f)
-    f.close()
-     
+def make_pickle_file(file_name, data) -> None:
+    """
+    Create pickle file
+    """
+
+    with open(f"{file_name}.pickle", "wb") as outfile:
+        pickle.dump(data, outfile)
+
+
+def unpick_pickle_file(file_name) -> None:
+    """
+    Get data from pickle file
+    """
+
+    with open(file_name, "rb") as f:
+        data = pickle.load(f)
+
     return data
 
-def get_data(label: str, file: str):
-    json_data = read_json(file)
-    features_amount = len(json_data[0][label])
-    features = [[]]*features_amount
 
-    for elem in json_data:
-        data = elem[label]
-        for i in range(features_amount):
-            features[i].append(data[i])
+def serialize_data(data, file_name: str) -> None:
+    """
+    Serialize object into a pickle file
+    """
 
-    return features
+    if not path.exists("./serialized_data"):
+        mkdir("./serialized_data")
+
+    make_pickle_file(file_name, data)
+
+
+def deserialize_data(file_name) -> None:
+    """
+    Deserialize pickle file into an object
+    """
+
+    if path.exists(file_name):
+        data = unpick_pickle_file(file_name)
+        return data
+
+    else:
+        return None
