@@ -13,11 +13,9 @@ def g_zero(accel_x, accel_y, accel_z, threshold=0.5) -> bool:
     an anomaly or not
     """
 
-    thresh = 10;
-
-    return (abs(accel_x) < thresh and
-    abs(accel_y) < thresh and
-    abs(accel_z) < thresh)
+    return (abs(accel_x) < threshold and
+    abs(accel_y) < threshold and
+    abs(accel_z) < threshold)
 
 def z_thresh(accel_z, threshold=12) -> bool:
     """
