@@ -17,7 +17,8 @@ def json_to_df() -> list[pd.DataFrame]:
     proc_dfs = []
 
     for f_path, f_name in json_files:
-        if not exists(f"./serialized_data/{f_name}"):
+        if not exists(f"./serialized_data/{f_name}.pickle"):
+            print(f"File {f_name} does not exist, collecting JSON...")
             time_series = pd.read_json(f_path)
 
             accel_raw = time_series[["accelerometer"]].copy()
@@ -31,7 +32,7 @@ def json_to_df() -> list[pd.DataFrame]:
                 proc_data[-1].append(speed_raw.iloc[index][0])
 
             proc_df = pd.DataFrame(
-                proc_data, columns=["Accel X", "Accel Y", "Accel Z", "Speed"]
+                proc_data, columns=["X Accel", "Y Accel", "Z Accel", "Speed"]
             )
             proc_dfs.append(proc_df)
             serialize_data(proc_df, f"./serialized_data/{f_name}")
@@ -53,6 +54,7 @@ def get_data() -> list[pd.DataFrame]:
         mkdir("./serialized_data")
 
     if len(listdir("./serialized_data")) < len(listdir("./data")):
+        print("Missing files, checking directory")
         proc_dfs = json_to_df()
 
     else: 

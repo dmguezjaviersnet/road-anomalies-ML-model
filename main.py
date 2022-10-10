@@ -1,19 +1,15 @@
-from os import listdir 
-from os.path import isfile, join, splitext
-
-import matplotlib.cm as cm
-import matplotlib.pyplot as plt
-import numpy as np
-from IPython.display import display
-from sklearn import metrics  # for evaluations
-from sklearn.cluster import DBSCAN
-from sklearn.datasets import make_blobs, make_circles
-from sklearn.preprocessing import StandardScaler  # for feature scaling
-
 from data_processing import get_data
+from candidates_heurs import find_candidates_heurs
+from candidates_outliers import find_candidates_outl
 
 def main():
-    time_series = get_data()
+    time_seriess = get_data()
+    idx = 0
+    test_time_series = time_seriess[idx]
+
+    heur_candts = find_candidates_heurs(test_time_series, idx)
+    # outl_candts = find_candidates_outl(test_time_series)
+
     # z_vs_x = procc_df[["Accel X", "Accel Z"]]
     # z_vs_x_thousand = procc_df.iloc[1:1000]
     # z_vs_x_thousand = z_vs_x_thousand[["Accel X", "Accel Y"]]
