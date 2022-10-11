@@ -1,13 +1,20 @@
 from data_processing import get_data
-from candidates_heurs import find_candidates_heurs
-from candidates_outliers import find_candidates_outl
+from windowing_process import build_windows
+from candt_anmly_heurs import find_candidates_heurs
+from candt_anomaly_oults import find_candidates_outls
 
 def main():
     time_seriess = get_data()
     idx = 0
     test_time_series = time_seriess[idx]
 
+    windows = build_windows(test_time_series)
+
     heur_candts = find_candidates_heurs(test_time_series, idx)
+    outls_candts = find_candidates_outls(test_time_series)
+
+    print(heur_candts)
+    print(outls_candts)
     # outl_candts = find_candidates_outl(test_time_series)
 
     # z_vs_x = procc_df[["Accel X", "Accel Z"]]
