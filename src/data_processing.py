@@ -11,13 +11,13 @@ def json_to_df() -> list[pd.DataFrame]:
     """
 
     json_files = [
-        (f"./data/{f_name}", splitext(f_name)[0]) for f_name in listdir("./data") if isfile(join("./data", f_name))
+        (f"../data/{f_name}", splitext(f_name)[0]) for f_name in listdir("../data") if isfile(join("../data", f_name))
     ]
 
     proc_dfs = []
 
     for f_path, f_name in json_files:
-        if not exists(f"./serialized_data/{f_name}.pickle"):
+        if not exists(f"../serialized_data/{f_name}.pickle"):
             print(f"File {f_name} does not exist, collecting JSON...")
             time_series = pd.read_json(f_path)
 
@@ -35,10 +35,10 @@ def json_to_df() -> list[pd.DataFrame]:
                 proc_data, columns=["X Accel", "Y Accel", "Z Accel", "Speed"]
             )
             proc_dfs.append(proc_df)
-            serialize_data(proc_df, f"./serialized_data/{f_name}")
+            serialize_data(proc_df, f"../serialized_data/{f_name}")
 
         else:
-            proc_dfs.append(deserialize_data(f"./serialized_data/{f_name}"))
+            proc_dfs.append(deserialize_data(f"../serialized_data/{f_name}"))
 
     return proc_dfs
 
@@ -50,16 +50,15 @@ def get_data() -> list[pd.DataFrame]:
     """
 
     proc_dfs = []
-    if not exists("./serialized_data"):
-        mkdir("./serialized_data")
+    if not exists("../serialized_data"):
+        mkdir("../serialized_data")
 
-    if len(listdir("./serialized_data")) < len(listdir("./data")):
+    if len(listdir("../serialized_data")) < len(listdir("../data")):
         print("Missing files, checking directory")
         proc_dfs = json_to_df()
 
     else: 
-        for pickle_file in listdir("./serialized_data"):
-            proc_dfs.append(deserialize_data(f"./serialized_data/{pickle_file}"))
-
+        for pickle_file in listdir("../serialized_data"):
+            proc_dfs.append(deserialize_data(f"../serialized_data/{pickle_file}"))
 
     return proc_dfs
