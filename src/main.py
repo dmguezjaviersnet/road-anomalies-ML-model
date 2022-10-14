@@ -1,34 +1,28 @@
 from data_processing import get_data
 from windowing_process import build_windows
 from candt_anmly_heurs import find_candidates_heurs
-from candt_anomaly_oults import find_candidates_outls
+from candt_anmly_outls import find_candidates_outls
+from outls_plots import outls_scatter
 
 def main():
+    # //\\// ------------------ Testing scatter plot and heuristic predictions --------------------------//\\//
     time_seriess = get_data()
-    idx = 0
-    test_time_series = time_seriess[idx]
 
-    windows = build_windows(test_time_series)
+    for _, elem in enumerate(time_seriess):
+        heur_candts, z_thresh_pred, z_diff_pred, g_zero_pred = find_candidates_heurs(elem)
+        dbscan_pred, optics_pred, ocsvm_pred = find_candidates_outls(elem)
 
-    heur_candts = find_candidates_heurs(test_time_series, idx)
-    outls_candts = find_candidates_outls(test_time_series)
+        predictions = [("z_thresh", z_thresh_pred), ("z_diff", z_diff_pred), ("g_zero", g_zero_pred),
+                        ("dbscan", dbscan_pred), ("optics", optics_pred), ("ocsvm", ocsvm_pred)]
 
-    print(heur_candts)
-    print(outls_candts)
-    # outl_candts = find_candidates_outl(test_time_series)
+        outls_scatter(elem, predictions, rows=2, cols=3)
+        print(heur_candts)
+            
+    # //\\// ------------------ Building windows --------------------------//\\//
 
-    # z_vs_x = procc_df[["Accel X", "Accel Z"]]
-    # z_vs_x_thousand = procc_df.iloc[1:1000]
-    # z_vs_x_thousand = z_vs_x_thousand[["Accel X", "Accel Y"]]
-
-    # values = z_vs_x_thousand.values
-    # values = StandardScaler().fit_transform(values)
-
-    # y_pred = DBSCAN(eps=0.3, min_samples=30).fit_predict(values)
-    # print(f"\n{y_pred}")
-    # print(f"\n{values}")
-    # plt.scatter(values[:, 0], values[:, -1], c=y_pred)
-
+    # windows = build_windows(test_time_series)
+    # window_idx = 0
+    # window = windows[window_idx]
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,6 @@
 import pandas as pd
 
-def build_windows(time_series: pd.DataFrame, window_size=100, window_step=1):
+def build_windows(time_series: pd.DataFrame, window_size=100, window_step=1) -> list[pd.DataFrame]:
     """
     Apply a sliding window (windowing) technique
     to a given time series

@@ -1,6 +1,7 @@
 import pandas as pd
+import numpy as np
 
-def g_zero(window: pd.DataFrame, threshold=0.5) -> bool:
+def g_zero(window: pd.DataFrame, threshold=0.5) -> tuple[bool, np.ndarray]:
     """
     Threshold-based heuristic to determine the presence of
     an anomaly on the road using accelerometer readings from
@@ -12,15 +13,20 @@ def g_zero(window: pd.DataFrame, threshold=0.5) -> bool:
 
     """
 
-    for _, data_point in window.iterrows():
-        if (data_point["X Accel"] < threshold and data_point["Y Accel"] < threshold
-            and data_point["Z Accel"] < threshold):
-            return True
+    anmly_prsnce = False
+    anmlies = [1]*len(window)
 
-    return False
+    for index, data_point in window.iterrows():
+        if (abs(data_point["X Accel"]) < threshold and abs(data_point["Y Accel"]) < threshold
+            and abs(data_point["Z Accel"]) < threshold):
+
+            anmlies[index] = -1
+            anmly_prsnce = True
+    
+    return anmly_prsnce, np.array(anmlies)
 
 
-def z_thresh(window: pd.DataFrame, threshold=12) -> bool:
+def z_thresh(window: pd.DataFrame, threshold=12) -> tuple[bool, np.ndarray]:
     """
     Threshold-based heuristic to determine the presence of an anomaly on the road
     using accelerometer reading from the z axis
@@ -31,11 +37,19 @@ def z_thresh(window: pd.DataFrame, threshold=12) -> bool:
 
     """
 
+    anmly_prsnce = False
+    anmlies = [1]*len(window)
+
     z_accel = window["Z Accel"].tolist()
 
-    return any(abs(data_point) > threshold for data_point in z_accel)
+    for index, data_point in enumerate(z_accel):
+        if abs(data_point) > threshold:
+            anmlies[index] = -1
+            anmly_prsnce = True
+    
+    return anmly_prsnce, np.array(anmlies)
 
-def z_diff(window: pd.DataFrame, threshold=10) -> bool:
+def z_diff(window: pd.DataFrame, threshold=10) -> tuple[bool, np.ndarray]:
     """
     Threshold-based heuristic to determine the presence of an anomaly on the road
     using two consecutive accelerometer readings from the z axis
@@ -46,11 +60,22 @@ def z_diff(window: pd.DataFrame, threshold=10) -> bool:
 
     """
 
+    anmly_prsnce = False
+    anmlies = [1]*len(window)
+
     z_accel = window["Z Accel"].tolist()
+    data_length = len(z_accel)
 
-    return any(abs(z_accel[index + 1] - z_accel[index]) > threshold for index, _ in enumerate(z_accel))
+    for index, _ in enumerate(z_accel):
+        if index < data_length - 1:
+            if (abs(z_accel[index + 1] - z_accel[index]) > threshold):
+                anmlies[index] = -1
+                anmlies[index + 1] = -1
+                anmly_prsnce = True
+    
+    return anmly_prsnce, np.array(anmlies)
 
-def std_dev_z(window: pd.DataFrame, threshold=15) -> bool:
+def std_dev_z(window: pd.DataFrame, threshold=5) -> bool:
     """
     Threshold-based heuristic to determine the presence of an anomaly on the road
     using the standard deviation of z axis accelerometer readings in a window of the time
@@ -64,30 +89,33 @@ def std_dev_z(window: pd.DataFrame, threshold=15) -> bool:
 
     return abs(window["Z Accel"].std()) > threshold
 
-def find_candidates_heurs(window: pd.DataFrame, window_idx: int) -> dict[str, list[int]]:
+def find_candidates_heurs(window: pd.DataFrame) -> tuple[list[bool], np.ndarray, np.ndarray, np.ndarray]:
     """
     Decide using each one of the 4 heuristics, which window 
-    is a potential anomaly.
+    contains potential anomalies.
 
-    windows: The windows which were generated with the windowing process
-    window_idx: Index of the window in the time series.
-    returns: A dictionary identifying which heuristic identified which windows
-    (by index) as potential anomalies.
+    window: The window generated with the windowing process
+    returns: A list identifying which heuristic identified
+    potential anomalies in the window. 0: z-thresh, 1: z-diff,
+    2: g-zero, 3: stdev(z), and in case of the first 3 methods also 
+    returns a list with the exact data points identified as potential
+    anomalies in the window
 
     """
 
-    candidates = {"z-thresh": [], "z-diff": [], "g-zero": [], "stdev(z)": []}
+    candidates = [False]*4
+    anmly = False
 
-    if z_thresh(window):
-        candidates["z-thresh"].append(window_idx)
+    anmly, z_thresh_anmlies = z_thresh(window)
+    if anmly: candidates[0] = True
 
-    if z_diff(window):
-        candidates["z-diff"].append(window_idx)
+    anmly, z_diff_anmlies = z_diff(window)
+    if anmly: candidates[1] = True
 
-    if g_zero(window):
-        candidates["g-zero"].append(window_idx)
+    anmly, g_zero_anmlies = g_zero(window)
+    if anmly: candidates[2] = True
 
-    if std_dev_z(window):
-        candidates["stdev(z)"].append(window_idx)
+    anmly = std_dev_z(window)
+    if anmly: candidates[3] = True
 
-    return candidates
+    return candidates, z_thresh_anmlies, z_diff_anmlies, g_zero_anmlies
