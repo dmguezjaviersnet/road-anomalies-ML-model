@@ -1,4 +1,5 @@
 import pandas as pd
+import json
 from os import listdir, mkdir
 from os.path import isfile, join, splitext, exists
 
@@ -19,23 +20,26 @@ def json_to_df() -> list[pd.DataFrame]:
     for f_path, f_name in json_files:
         if not exists(f"./serialized_data/{f_name}.pickle"):
             print(f"File {f_name} does not exist, collecting JSON...")
-            time_series = pd.read_json(f_path)
 
-            accel_raw = time_series[["accelerometer"]].copy()
-            speed_raw = time_series[["speed"]].copy()
-            proc_data = []
+            with open(f_path) as json_file:
+                data = json.load(json_file)
+                time_series = pd.json_normalize(data["records"])
 
-            for index in range(len(accel_raw)):
-                for list in accel_raw.iloc[index]:
-                    proc_data.append([elem for elem in list])
+                accel_raw = time_series[["accelerometer"]].copy()
+                speed_raw = time_series[["speed"]].copy()
+                proc_data = []
 
-                proc_data[-1].append(speed_raw.iloc[index][0])
+                for index in range(len(accel_raw)):
+                    for list in accel_raw.iloc[index]:
+                        proc_data.append([elem for elem in list])
 
-            proc_df = pd.DataFrame(
-                proc_data, columns=["X Accel", "Y Accel", "Z Accel", "Speed"]
-            )
-            proc_dfs.append(proc_df)
-            serialize_data(proc_df, f"./serialized_data/{f_name}")
+                    proc_data[-1].append(speed_raw.iloc[index][0])
+
+                proc_df = pd.DataFrame(
+                    proc_data, columns=["X Accel", "Y Accel", "Z Accel", "Speed"]
+                )
+                proc_dfs.append(proc_df)
+                serialize_data(proc_df, f"./serialized_data/{f_name}")
 
         else:
             proc_dfs.append(deserialize_data(f"./serialized_data/{f_name}"))
