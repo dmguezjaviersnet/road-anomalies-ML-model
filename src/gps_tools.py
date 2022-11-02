@@ -12,7 +12,7 @@ class AnomalyLocation:
 
 def convert_csv_gmaps(points: list[list[float]]):
     '''
-
+        ### Convert locations  to CSV format for Google Maps
     '''
     # csv header
     fieldnames = ['Name', 'Location', 'Description']
