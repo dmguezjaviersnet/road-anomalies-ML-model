@@ -10,7 +10,7 @@ class AnomalyLocation:
         self.label = label
 
 
-def convert_csv_gmaps(points: list[float]):
+def convert_csv_gmaps(points: list[list[float]]):
     '''
 
     '''
@@ -38,7 +38,7 @@ def interpolation(gps_location1: list[float], gps_location2: list[float], count:
          Given two GPS locations, this function will return a list of GPS locations that are interpolated between the two locations.
          The number of locations to be obtained by interpolation is passed as the count parameter.
     '''
-    new_points: list[float] = []
+    new_points: list[list[float]] = []
     new_points.append(gps_location1)
     wgs84 = nv.FrameE(name='WGS84')
     n_EB_E_t0 = wgs84.GeoPoint(
