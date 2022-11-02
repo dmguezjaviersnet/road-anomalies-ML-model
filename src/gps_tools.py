@@ -24,7 +24,7 @@ def convert_csv_gmaps(points: list[list[float]]):
             "Location": (location[0], location[1]),
             "Description": ""
         })
-
+    # write to csv
     with open('points.csv', 'w', encoding='UTF8', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
@@ -38,25 +38,35 @@ def interpolation(gps_location1: list[float], gps_location2: list[float], count:
          Given two GPS locations, this function will return a list of GPS locations that are interpolated between the two locations.
          The number of locations to be obtained by interpolation is passed as the count parameter.
     '''
+    # create list of GPS locations
     new_points: list[list[float]] = []
+    #  add location1 to list
     new_points.append(gps_location1)
+
+    # create nvector frame
     wgs84 = nv.FrameE(name='WGS84')
+    # convert location1 to nvector
     n_EB_E_t0 = wgs84.GeoPoint(
         gps_location1[0], gps_location1[1], degrees=True).to_nvector()
+    # convert location2 to nvector
     n_EB_E_t1 = wgs84.GeoPoint(
         gps_location2[0], gps_location2[1], degrees=True).to_nvector()
+    # path between location1 and location2
     path = nv.GeoPath(n_EB_E_t0, n_EB_E_t1)
     t0 = 10
     t1 = t0*(count+2)
-
+    
     for i in range(2, count+2):
         ti = t0*i  # time of interpolation
 
         ti_n = (ti - t0) / (t1 - t0)  # normalized time of interpolation
+        # interpolate between location1 and location2 at time ti
         g_EB_E_ti = path.interpolate(ti_n).to_geo_point()
-        lat_ti, lon_ti, z_ti = g_EB_E_ti.latlon_deg
+        # convert nvector to  latitude, longotude GPS location
+        lat_ti, lon_ti, _ = g_EB_E_ti.latlon_deg
+        # add interpolated location to list
         new_points.append([lat_ti, lon_ti])
-
+    # add location2 to list
     new_points.append(gps_location2)
     return new_points
 
