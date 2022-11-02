@@ -12,7 +12,7 @@ def find_candidates_outls(time_series: pd.DataFrame) -> tuple:
     """
     Finds outliers in the time series as potential candidate anomalies using
     several algorithms.
-
+    
     time_series: The time series to which apply the outliers detection
     algorithms.
     returns: A tuple consisting of the label(cluster) to which every data point

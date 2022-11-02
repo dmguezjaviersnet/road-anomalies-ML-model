@@ -12,7 +12,10 @@ class AnomalyLocation:
 
 def convert_csv_gmaps(points: list[list[float]]):
     '''
-        ### Convert locations  to CSV format for Google Maps
+        ## Convert locations  to CSV format for Google Maps
+        Parameters
+        ----------
+        points : list of locations given in the [latitude, longitude] format  
     '''
     # csv header
     fieldnames = ['Name', 'Location', 'Description']
@@ -33,10 +36,15 @@ def convert_csv_gmaps(points: list[list[float]]):
 
 def interpolation(gps_location1: list[float], gps_location2: list[float], count: int) -> list[list[float]]:
     '''
-         ### Interpolate between two GPS locations 
+        ## Interpolate between two GPS locations 
+        Given two GPS locations, this function will return a list of GPS locations that are interpolated between the two locations.
+        The number of locations to be obtained by interpolation is passed as the count parameter.
 
-         Given two GPS locations, this function will return a list of GPS locations that are interpolated between the two locations.
-         The number of locations to be obtained by interpolation is passed as the count parameter.
+        Parameters
+        ----------
+        gps_location1 : GPS location1
+        gps_location2 : GPS location2
+        count: number of locations to be obtained by interpolation
     '''
     # create list of GPS locations
     new_points: list[list[float]] = []
@@ -55,7 +63,7 @@ def interpolation(gps_location1: list[float], gps_location2: list[float], count:
     path = nv.GeoPath(n_EB_E_t0, n_EB_E_t1)
     t0 = 10
     t1 = t0*(count+2)
-    
+
     for i in range(2, count+2):
         ti = t0*i  # time of interpolation
 
