@@ -4,10 +4,8 @@ from sklearn import metrics
 from sklearn.cluster import DBSCAN, OPTICS
 from sklearn.svm import OneClassSVM
 
-from named_series import NamedSeries
 # import matplotlib.cm as cm
 # import numpy as np
-# from IPython.display import display
 # from sklearn.preprocessing import StandardScaler
 
 def find_candidates_unspv(time_series: pd.DataFrame) -> tuple:

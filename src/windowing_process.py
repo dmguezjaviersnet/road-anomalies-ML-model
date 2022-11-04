@@ -23,8 +23,8 @@ def build_windows(time_series: pd.DataFrame, window_size=100, window_step=1) -> 
 
     windows = []
     while upper_bound < time_series_size:
-        window = pd.DataFrame(time_series[lower_bound:upper_bound])
-        window[["series_index"]] = [index for index in range(lower_bound, upper_bound)]
+        window = pd.DataFrame(time_series[lower_bound:upper_bound + 1])
+        window["series_index"] = [index for index in range(lower_bound, upper_bound + 1)]
         windows.append(window)
         lower_bound += window_step
         upper_bound += window_step
@@ -44,5 +44,17 @@ def filter_candt_windows(windows: list[pd.DataFrame], predictions: ndarray) -> l
     predictions: The outlier prediction for the time series.
 
     """
+    
+    candt_windows = []
 
-    pass
+    for window in windows:
+        outls_count = 2
+        for index in window.index:
+            if predictions[index] == -1:
+                outls_count += 1
+
+                if outls_count == 2:
+                    candt_windows.append(window)
+                    break
+
+    return candt_windows
