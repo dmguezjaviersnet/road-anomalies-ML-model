@@ -1,22 +1,14 @@
 from data_processing import get_data
-from windowing_process import build_windows
-from candt_anmly_heurs import find_candidates_heurs
-from candt_anmly_outls import find_candidates_outls
 from outls_plots import outls_scatter
+from outls_detection import detect_outls
 
 def main():
     # //\\// ------------------ Testing scatter plot and heuristic predictions --------------------------//\\//
-    time_seriess = get_data()
+    time_seriess = get_data("./data/samples")
 
     for _, elem in enumerate(time_seriess):
-        heur_candts, z_thresh_pred, z_diff_pred, g_zero_pred = find_candidates_heurs(elem)
-        dbscan_pred, optics_pred, ocsvm_pred = find_candidates_outls(elem)
-
-        predictions = [("z_thresh", z_thresh_pred), ("z_diff", z_diff_pred), ("g_zero", g_zero_pred),
-                        ("dbscan", dbscan_pred), ("optics", optics_pred), ("ocsvm", ocsvm_pred)]
-
-        outls_scatter(elem, predictions, rows=2, cols=3)
-        print(heur_candts)
+        predictions = detect_outls(elem.series)
+        outls_scatter(elem.series, predictions, rows=2, cols=3)
             
     # //\\// ------------------ Building windows --------------------------//\\//
 
