@@ -29,7 +29,8 @@ def json_to_df(path: str) -> list[NamedSeries]:
     named_dfs = []
 
     for f_path, f_name in json_files:
-        if not exists(f"./serialized_data/{f_name}.pickle"):
+        main_name = f_name.split('_')[0]
+        if not exists(f'./data/csvs/maindata/{f_name}.csv'):
             print(f"File {f_name} is not serialized, collecting JSON...")
 
             with open(f_path) as json_file:
@@ -61,13 +62,18 @@ def json_to_df(path: str) -> list[NamedSeries]:
 
                 print(proc_df)
                 # serialize_data(proc_df, f"./serialized_data/{f_name}")
+                proc_df.to_csv(f'./data/csvs/maindata/{f_name}.csv')
 
-                named_df = NamedSeries(proc_df, f_name)
+                named_df = NamedSeries(proc_df, main_name)
                 named_dfs.append(named_df)
-                serialize_data(named_df, f"./serialized_data/{f_name}")
+                #serialize_data(named_df, f"./serialized_data/{f_name}")
 
         else:
-            named_dfs.append(deserialize_data(f"./serialized_data/{f_name}"))
+
+            series = pd.read_csv(f'./data/csvs/maindata/{f_name}.csv')
+            print(series)
+            named_df = NamedSeries(series, main_name)
+            named_dfs.append(named_df)
 
     return named_dfs
 
@@ -98,3 +104,6 @@ def get_data(path: str) -> list[NamedSeries]:
                 f"./serialized_data/{pickle_file}"))
 
     return proc_dfs
+
+
+json_to_df("./data/samples")
