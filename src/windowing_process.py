@@ -3,13 +3,14 @@ import pandas as pd
 def build_windows(time_series: pd.DataFrame, window_size=100, window_step=1) -> list[pd.DataFrame]:
     """
     Apply a sliding window (windowing) technique
-    to a given time series
+    to a given time series.
 
-    time_series: the input time series to which apply the process
-    window_size: the size of the sliding window
-    step: the size of the step by which modify the bounds of the window
-    returns: a set of pandas dataframes, each one representing a window
-    within the time series
+    Parameters
+    -----------------
+
+    time_series: the input time series to which apply the process.
+    window_size: the size of the sliding window.
+    step: the size of the step by which modify the bounds of the window.
 
     """
 

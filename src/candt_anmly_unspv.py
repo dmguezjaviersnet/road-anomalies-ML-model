@@ -3,15 +3,20 @@ import pandas as pd
 from sklearn import metrics
 from sklearn.cluster import DBSCAN, OPTICS
 from sklearn.svm import OneClassSVM
+
+from named_series import NamedSeries
 # import matplotlib.cm as cm
 # import numpy as np
 # from IPython.display import display
 # from sklearn.preprocessing import StandardScaler
 
-def find_candidates_outls(time_series: pd.DataFrame) -> tuple:
+def find_candidates_unspv(time_series: pd.DataFrame) -> tuple:
     """
     Finds outliers in the time series as potential candidate anomalies using
     several algorithms.
+
+    Parameters
+    -----------------
 
     time_series: The time series to which apply the outliers detection
     algorithms.
