@@ -36,7 +36,6 @@ def json_to_df(path: str) -> list[NamedSeries]:
                 data = json.load(json_file)
 
                 time_series = pd.json_normalize(data["records"])
-                print(time_series.info())
 
                 accel_raw = time_series[["accelerometer"]].copy()
                 speed_raw = time_series[["speed"]].copy()
@@ -47,7 +46,6 @@ def json_to_df(path: str) -> list[NamedSeries]:
                 for index in range(len(accel_raw)):
                     proc_data.append(accel_raw.iloc[index][0])
                     proc_data[-1].append(speed_raw.iloc[index][0])
-                    print(len(latitude_raw))
                     proc_data[-1].append(latitude_raw.iloc[index])
                     proc_data[-1].append(longitude_raw.iloc[index])
 
