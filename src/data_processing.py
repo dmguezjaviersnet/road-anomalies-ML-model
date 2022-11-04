@@ -1,15 +1,19 @@
 import pandas as pd
 import json
-from os import listdir, mkdir
+from pathlib import Path
+from os import listdir
 from os.path import isfile, join, splitext, exists
 from gps_tools import add_interpolate_location_to_samples
 
-from serializer import serialize_data, deserialize_data
 from named_series import NamedSeries
 
-
-# from re import match
-
+# -------------------- Required directories for the data ------------------------ #
+data_dir = Path("./data")
+csvs_dir = Path("./data/csvs")
+marks_dir = Path("./data/marks")
+samples_dir = Path("./data/samples")
+proc_samples_dir = Path("./data/csvs/proc_samples") 
+marks_google_dir = Path("./data/csvs/marks")
 
 def json_to_df(path: str) -> list[NamedSeries]:
     """
@@ -30,7 +34,7 @@ def json_to_df(path: str) -> list[NamedSeries]:
 
     for f_path, f_name in json_files:
         main_name = f_name.split('_')[0]
-        if not exists(f'./data/csvs/maindata/{f_name}.csv'):
+        if not exists(f"{proc_samples_dir}/{f_name}.csv"):
             print(f"File {f_name} is not serialized, collecting JSON...")
 
             with open(f_path) as json_file:
@@ -60,28 +64,23 @@ def json_to_df(path: str) -> list[NamedSeries]:
                 proc_df["Latitude"], proc_df["Longitude"] = add_interpolate_location_to_samples(
                     latitudesList, longitudesList)
 
-                print(proc_df)
-                # serialize_data(proc_df, f"./serialized_data/{f_name}")
-                proc_df.to_csv(f'./data/csvs/maindata/{f_name}.csv')
+                proc_df.to_csv(f"{proc_samples_dir}/{f_name}.csv")
 
                 named_df = NamedSeries(proc_df, main_name)
                 named_dfs.append(named_df)
-                #serialize_data(named_df, f"./serialized_data/{f_name}")
 
         else:
-
-            series = pd.read_csv(f'./data/csvs/maindata/{f_name}.csv')
-            print(series)
+            series = pd.read_csv(f"{proc_samples_dir}/{f_name}.csv")
             named_df = NamedSeries(series, main_name)
             named_dfs.append(named_df)
 
     return named_dfs
 
 
-def get_data(path: str) -> list[NamedSeries]:
+def fetch_data(path: str) -> list[NamedSeries]:
     """
     Get the pandas dataframes generated from raw JSON data in case
-    it doesn't already exists. Otherwise just deserialize it.
+    it doesn't already exists. Otherwise just read the csv.
 
     Parameters
     ----------------
@@ -90,20 +89,21 @@ def get_data(path: str) -> list[NamedSeries]:
 
     """
 
+    create_req_dirs()
+
     proc_dfs = []
-    if not exists("./serialized_data"):
-        mkdir("./serialized_data")
-
-    if len(listdir("./serialized_data")) < len(listdir(path)):
-        print("Missing files, checking directory")
-        proc_dfs = json_to_df(path)
-
-    else:
-        for pickle_file in listdir("./serialized_data"):
-            proc_dfs.append(deserialize_data(
-                f"./serialized_data/{pickle_file}"))
+    proc_dfs = json_to_df(path)
 
     return proc_dfs
 
+def create_req_dirs() -> None:
+    """
+    Create the required directories in case they doesn't exist
 
-json_to_df("./data/samples")
+    """
+
+    required_dirs = [data_dir, csvs_dir, marks_dir, samples_dir, proc_samples_dir, marks_google_dir]
+    
+    for req_dir in required_dirs:
+        if not exists(req_dir):
+            req_dir.mkdir(parents=True, exist_ok=True)
