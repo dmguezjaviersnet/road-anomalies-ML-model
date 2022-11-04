@@ -1,3 +1,4 @@
+from numpy import ndarray
 import pandas as pd
 
 def build_windows(time_series: pd.DataFrame, window_size=100, window_step=1) -> list[pd.DataFrame]:
@@ -27,3 +28,19 @@ def build_windows(time_series: pd.DataFrame, window_size=100, window_step=1) -> 
         upper_bound += window_step
         
     return windows
+
+def filter_candt_windows(windows: list[pd.DataFrame], predictions: ndarray) -> list[pd.DataFrame]:
+    """
+    Choose among all the possible windows within a time series, the ones 
+    in which an outlier was found.
+
+    Parameters
+    ------------------
+
+    windows: Windows resulting of applying the sliding window process to a time 
+    series
+    predictions: The outlier prediction for the time series.
+
+    """
+
+    return None

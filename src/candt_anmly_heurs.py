@@ -1,8 +1,6 @@
 import pandas as pd
 import numpy as np
 
-from named_series import NamedSeries
-
 def g_zero(window: pd.DataFrame, threshold=0.5) -> tuple[bool, np.ndarray]:
     """
     Threshold-based heuristic to determine the presence of
@@ -103,7 +101,7 @@ def std_dev_z(window: pd.DataFrame, threshold=5) -> bool:
 
     return abs(window["Z Accel"].std()) > threshold
 
-def find_candidates_heurs(window: NamedSeries) -> tuple[list[bool], np.ndarray, np.ndarray, np.ndarray]:
+def find_candidates_heurs(window: pd.DataFrame) -> tuple[list[bool], np.ndarray, np.ndarray, np.ndarray]:
     """
     Decide using each one of the 4 heuristics, which window 
     contains potential anomalies.
