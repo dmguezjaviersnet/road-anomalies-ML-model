@@ -23,7 +23,9 @@ def build_windows(time_series: pd.DataFrame, window_size=100, window_step=1) -> 
 
     windows = []
     while upper_bound < time_series_size:
-        windows.append(pd.DataFrame(time_series[lower_bound:upper_bound]))
+        window = pd.DataFrame(time_series[lower_bound:upper_bound])
+        window[["series_index"]] = [index for index in range(lower_bound, upper_bound)]
+        windows.append(window)
         lower_bound += window_step
         upper_bound += window_step
         
@@ -43,4 +45,4 @@ def filter_candt_windows(windows: list[pd.DataFrame], predictions: ndarray) -> l
 
     """
 
-    return None
+    pass
