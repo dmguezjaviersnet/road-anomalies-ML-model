@@ -3,6 +3,7 @@ import nvector as nv
 import csv
 import json
 import copy
+import os
 
 
 class MarkLocation:
@@ -27,10 +28,10 @@ def json_to_mark_location(filename):
 
 def convert_mark_json_to_csv(filename: str):
     points = json_to_mark_location(filename)
-    convert_csv_gmaps(points)
+    convert_csv_gmaps(points, filename)
 
 
-def convert_csv_gmaps(points: list[MarkLocation]):
+def convert_csv_gmaps(points: list[MarkLocation], output_name: str):
     '''
         ## Convert locations  to CSV format for Google Maps
         Parameters
@@ -48,7 +49,7 @@ def convert_csv_gmaps(points: list[MarkLocation]):
             "Description": f"{markLocation.label}"
         })
     # write to csv
-    with open('points.csv', 'w', encoding='UTF8', newline='') as f:
+    with open(f'./data/csvs/marks/{os.path.basename(output_name).split(".")[0]}.csv', 'w', encoding='UTF8', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
@@ -127,4 +128,4 @@ def add_interpolate_location_to_samples(latitudesList, longitudesList):
 
 
 convert_mark_json_to_csv(
-    "./data/ParqueElCurita_Univ/marks/ParqueElCurita_Univ_marks.json")
+    "./data/marks/TerminalTrenes-Ayesteran_marks.json")

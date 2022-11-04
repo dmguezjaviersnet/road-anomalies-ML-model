@@ -61,16 +61,14 @@ def json_to_df(path: str) -> list[NamedSeries]:
                     latitudesList, longitudesList)
 
                 print(proc_df)
-                # serialize_data(proc_df, f"./serialized_data/{f_name}")
-                proc_df.to_csv(f'./data/csvs/maindata/{f_name}.csv')
+                proc_df.to_csv(f'./data/csvs/proc_samples/{f_name}.csv')
 
                 named_df = NamedSeries(proc_df, main_name)
                 named_dfs.append(named_df)
-                #serialize_data(named_df, f"./serialized_data/{f_name}")
 
         else:
 
-            series = pd.read_csv(f'./data/csvs/maindata/{f_name}.csv')
+            series = pd.read_csv(f'./data/csvs/proc_samples/{f_name}.csv')
             print(series)
             named_df = NamedSeries(series, main_name)
             named_dfs.append(named_df)
