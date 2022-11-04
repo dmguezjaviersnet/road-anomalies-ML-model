@@ -1,16 +1,36 @@
 
 import nvector as nv
 import csv
+import json
+import copy
 
 
-class AnomalyLocation:
-    def __init__(self, latitude, longitude, label):
-        self.latitude = latitude
-        self.longitude = longitude
+class MarkLocation:
+
+    location: list[float]
+    label: str
+
+    def __init__(self, location: list[float], label: str):
+        self.location = location
         self.label = label
 
 
-def convert_csv_gmaps(points: list[list[float]]):
+def json_to_mark_location(filename):
+    points = []
+    with open(filename) as json_file:
+        marks = json.load(json_file)
+        for mark in marks['marks']:
+            points.append(MarkLocation(
+                [mark['position']['latitude'], mark['position']['longitude']], mark['label']))
+    return points
+
+
+def convert_mark_json_to_csv(filename: str):
+    points = json_to_mark_location(filename)
+    convert_csv_gmaps(points)
+
+
+def convert_csv_gmaps(points: list[MarkLocation]):
     '''
         ## Convert locations  to CSV format for Google Maps
         Parameters
@@ -21,11 +41,11 @@ def convert_csv_gmaps(points: list[list[float]]):
     fieldnames = ['Name', 'Location', 'Description']
     rows = []
     # csv data
-    for i, location in enumerate(points):
+    for i, markLocation in enumerate(points):
         rows.append({
             'Name': f"Point{i}",
-            "Location": (location[0], location[1]),
-            "Description": ""
+            "Location": (markLocation.location[0], markLocation.location[1]),
+            "Description": f"{markLocation.label}"
         })
     # write to csv
     with open('points.csv', 'w', encoding='UTF8', newline='') as f:
@@ -49,7 +69,7 @@ def interpolation(gps_location1: list[float], gps_location2: list[float], count:
     # create list of GPS locations
     new_points: list[list[float]] = []
     #  add location1 to list
-    new_points.append(gps_location1)
+    # new_points.append(gps_location1)
 
     # create nvector frame
     wgs84 = nv.FrameE(name='WGS84')
@@ -75,10 +95,36 @@ def interpolation(gps_location1: list[float], gps_location2: list[float], count:
         # add interpolated location to list
         new_points.append([lat_ti, lon_ti])
     # add location2 to list
-    new_points.append(gps_location2)
+    # new_points.append(gps_location2)
     return new_points
 
 
-a = interpolation([23.13102, -82.36181], [23.13369, -82.36078], 10)
-convert_csv_gmaps(a)
-print(a)
+def add_interpolate_location_to_samples(latitudesList, longitudesList):
+    currentLocation = 0
+    latCopy = copy.deepcopy(latitudesList)
+    lntCopy = copy.deepcopy(longitudesList)
+    for i in range(1, len(latitudesList)):
+        if latitudesList[i] != latitudesList[currentLocation] and longitudesList[i] != longitudesList[currentLocation] or (i + 1) == len(latitudesList):
+            count = i - currentLocation - 1
+
+            if count > 0:
+                gps_location1 = [latitudesList[currentLocation] if (i + 1) != len(latitudesList) else latitudesList[currentLocation-1],
+                                 longitudesList[currentLocation] if (i + 1) != len(latitudesList) else latitudesList[currentLocation-1]]
+                gps_location2 = [latitudesList[i], longitudesList[i]]
+                new_interpolate_points = interpolation(
+                    gps_location1, gps_location2, count)
+
+                for index_i_points, [latitude, longitude] in enumerate(new_interpolate_points):
+                    latCopy[currentLocation+1+index_i_points] = latitude
+                    lntCopy[currentLocation+1+index_i_points] = longitude
+                currentLocation = i
+
+    return latCopy, lntCopy
+
+# a = interpolation([23.13102, -82.36181], [23.13369, -82.36078], 10)
+# convert_csv_gmaps(a)
+# print(a)
+
+
+convert_mark_json_to_csv(
+    "./data/ParqueElCurita_Univ/marks/ParqueElCurita_Univ_marks.json")
