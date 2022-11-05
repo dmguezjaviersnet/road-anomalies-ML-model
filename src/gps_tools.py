@@ -5,6 +5,7 @@ import nvector as nv
 import os
 
 from tools import marks_google_dir
+from math import radians, cos, sin, asin, sqrt
 
 
 class MarkLocation:
@@ -31,17 +32,31 @@ def json_to_mark_location(filename):
     return points
 
 
+def create_all_marks_cvs(mark_folder_name: str):
+    '''
+        Convert all marks in a folder to CSV format for Google Maps
+        
+        Parameters
+        -----------
+        
+        mark_folder_name : name of the folder containing the marks
+    '''
+    for filename in os.listdir(mark_folder_name):
+        if filename.endswith(".json"):
+            convert_mark_json_to_csv(f"{mark_folder_name}/{filename}")
+
 def convert_mark_json_to_csv(filename: str):
     points = json_to_mark_location(filename)
     convert_csv_gmaps(points, filename)
 
 
-def convert_csv_gmaps(points: list[MarkLocation], output_name: str):
+def convert_csv_gmaps(points: list[MarkLocation], output_name: str)-> None:
     '''
-    ## Convert locations  to CSV format for Google Maps
-    Parameters
-    ----------
-    points : list of locations given in the [latitude, longitude] format  
+        ## Convert locations  to CSV format for Google Maps
+        Parameters
+        ----------
+        points : list of locations given in the [latitude, longitude] format
+        output_name : name of the output file  
     '''
     # csv header
     fieldnames = ["Name", "Location", "Description"]
@@ -152,5 +167,41 @@ def add_interpolate_location_to_samples(latitudesList, longitudesList):
 # print(a)
 
 
-convert_mark_json_to_csv(
-    "./data/marks/TerminalTrenes-Ayesteran_marks.json")
+def harvisine_distance(location1, location2, to_meters=False)->float:
+    '''
+        Distance between two points on earth using Harvisine  formula
+
+        Parameters
+        ----------
+        location1 : GPS location1
+        location2 : GPS location2
+        to_meters: if True, the distance will be returned in meters
+
+        Returns
+        -------
+        distance between location1 and location2
+
+    '''
+    # approximate radius of earth in km
+    # Its equatorial radius is 6378 km, but its polar radius is 6357 km (WGS84)
+    R = 6371.0
+    # radians which converts from degrees to radians.
+    lat1 = radians(location1[0])
+    lon1 = radians(location1[1])
+    lat2 = radians(location2[0])
+    lon2 = radians(location2[1])
+
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+
+    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+    c = 2 * asin(sqrt(a))
+
+    distance = R * c
+
+    return distance * 1000 if to_meters else distance
+
+
+
+# convert_mark_json_to_csv(
+#     "./data/marks/TerminalTrenes-Ayesteran_marks.json")
