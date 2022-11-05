@@ -30,17 +30,31 @@ def json_to_mark_location(filename):
     return points
 
 
+def create_all_marks_cvs(mark_folder_name: str):
+    '''
+        Convert all marks in a folder to CSV format for Google Maps
+        
+        Parameters
+        -----------
+        
+        mark_folder_name : name of the folder containing the marks
+    '''
+    for filename in os.listdir(mark_folder_name):
+        if filename.endswith(".json"):
+            convert_mark_json_to_csv(f"{mark_folder_name}/{filename}")
+
 def convert_mark_json_to_csv(filename: str):
     points = json_to_mark_location(filename)
     convert_csv_gmaps(points, filename)
 
 
-def convert_csv_gmaps(points: list[MarkLocation], output_name: str):
+def convert_csv_gmaps(points: list[MarkLocation], output_name: str)-> None:
     '''
         ## Convert locations  to CSV format for Google Maps
         Parameters
         ----------
-        points : list of locations given in the [latitude, longitude] format  
+        points : list of locations given in the [latitude, longitude] format
+        output_name : name of the output file  
     '''
     # csv header
     fieldnames = ["Name", "Location", "Description"]
@@ -186,9 +200,6 @@ def harvisine_distance(location1, location2, to_meters=False)->float:
     return distance * 1000 if to_meters else distance
 
 
-a = harvisine_distance([
-    23.1264956, -82.3795878], [
-    23.1261687, -82.3795518], True)
-print(a)
+
 # convert_mark_json_to_csv(
 #     "./data/marks/TerminalTrenes-Ayesteran_marks.json")
