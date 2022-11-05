@@ -2,10 +2,9 @@ import copy
 import csv
 import json
 import nvector as nv
-import copy
 import os
 
-
+from tools import marks_google_dir
 
 
 class MarkLocation:
@@ -39,10 +38,10 @@ def convert_mark_json_to_csv(filename: str):
 
 def convert_csv_gmaps(points: list[MarkLocation], output_name: str):
     '''
-        ## Convert locations  to CSV format for Google Maps
-        Parameters
-        ----------
-        points : list of locations given in the [latitude, longitude] format  
+    ## Convert locations  to CSV format for Google Maps
+    Parameters
+    ----------
+    points : list of locations given in the [latitude, longitude] format  
     '''
     # csv header
     fieldnames = ["Name", "Location", "Description"]
