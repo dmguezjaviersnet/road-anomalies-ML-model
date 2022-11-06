@@ -5,7 +5,8 @@ import re
 from tools import marks_google_dir
 from gps_tools import haversine_distance
 
-def label_outls(outls: pd.DataFrame, series_name: str, radius=50) -> pd.DataFrame:
+
+def label_outls(outls: pd.DataFrame, series_name: str, radius=15) -> pd.DataFrame:
     """
         Asign a label to every outlier by searching the nearest mark using 
         haversine distance.
@@ -19,15 +20,21 @@ def label_outls(outls: pd.DataFrame, series_name: str, radius=50) -> pd.DataFram
 
     marks = find_marks_file(series_name)
 
-    for mark_idx in range(len(marks)):
-        for outl_idx in range(len(outls)):
+    for outl_idx in range(len(outls)):
+        for mark_idx in range(len(marks)):
             mark_location = marks.iloc[mark_idx, "Location"]
             outl_location = (outls.iloc[outl_idx, "Latitude"], outls.iloc[outl_idx, "Longitude"])
 
             distance = haversine_distance(mark_location, outl_location)
 
             if distance < radius:
-                outls.iloc[outl_idx, ""]
+                outls.iloc[outl_idx, "Label"] = "Bache"
+                break
+        
+        if outls.iloc[outl_idx, "Label"] == "-":
+            outls.iloc[outl_idx, "Label"] = "No bache" 
+
+    return outls
 
 def find_marks_file(series_name: str) -> pd.DataFrame:
     """

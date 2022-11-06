@@ -8,11 +8,11 @@ from tools import samples_dir, marks_dir
 
 def main():
     marks_dfs = marks_json_to_df(f"{marks_dir}")
-    time_seriess = fetch_data(f"{samples_dir}")
+    time_seriess_df = fetch_data(f"{samples_dir}")
 
     # //\\// ------------------ Taking outliers along the whole time series --------------------------//\\//
 
-    for elem in time_seriess:
+    for elem in time_seriess_df:
         predictions = detect_outls(elem.series)
         # outls_scatter(elem.series, predictions, rows=2, cols=3)
 

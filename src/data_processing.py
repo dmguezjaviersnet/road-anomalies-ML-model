@@ -54,7 +54,7 @@ def json_samples_to_df(path: str) -> list[NamedDataframe]:
                                         "Z Accel", "Speed", "Latitude", "Longitude"]
                 )
 
-                label_col = ["No label"]*len(proc_data)
+                label_col = ["-"]*len(proc_data)
                 proc_df["Label"] = label_col
 
                 latitudesList = proc_df["Latitude"].to_numpy()
