@@ -103,7 +103,7 @@ def add_interpolate_location_to_samples(latitudesList: np.ndarray, longitudesLis
 
 
 
-def harvisine_distance(location1, location2, to_meters=False)->float:
+def harvisine_distance(location1: tuple[float, float], location2: tuple[float, float], to_meters: bool = False)->float:
     '''
         Distance between two points on earth using Harvisine  formula
 
