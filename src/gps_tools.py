@@ -2,6 +2,7 @@ import copy
 import json
 import nvector as nv
 from math import radians, cos, sin, asin, sqrt
+import numpy as np
 
 
 class MarkLocation:
@@ -17,7 +18,7 @@ class MarkLocation:
 
 def interpolation(
     gps_location1: tuple[float, float], gps_location2: tuple[float, float], count: int
-) -> list[list[float]]:
+) -> list[tuple[float, float]]:
     """
     ## Interpolate between two GPS locations
     Given two GPS locations, this function will return a list of GPS locations that are interpolated between the two locations.
@@ -65,7 +66,7 @@ def interpolation(
     return new_points
 
 
-def add_interpolate_location_to_samples(latitudesList: list[float], longitudesList: list[float]):
+def add_interpolate_location_to_samples(latitudesList: np.ndarray, longitudesList: np.ndarray):
     currentLocation = 0
     latCopy = copy.deepcopy(latitudesList)
     lntCopy = copy.deepcopy(longitudesList)    # 

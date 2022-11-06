@@ -6,7 +6,7 @@ from os.path import isfile, join, splitext, exists
 import os
 import csv
 from named_dataframe import NamedDataframe
-from gps_tools import MarkLocation, add_interpolate_location_to_samples, convert_mark_json_to_csv
+from gps_tools import MarkLocation, add_interpolate_location_to_samples
 
 
 # -------------------- Required directories for the data ------------------------ #
