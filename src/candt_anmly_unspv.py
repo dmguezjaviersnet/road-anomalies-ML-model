@@ -10,16 +10,16 @@ from sklearn.svm import OneClassSVM
 
 def find_candidates_unspv(time_series: pd.DataFrame) -> tuple:
     """
-    Finds outliers in the time series as potential candidate anomalies using
-    several algorithms.
+        Finds outliers in the time series as potential candidate anomalies using
+        several algorithms.
 
-    Parameters
-    -----------------
+        Parameters
+        -----------------
 
-    time_series: The time series to which apply the outliers detection
-    algorithms.
-    returns: A tuple consisting of the label(cluster) to which every data point
-    belongs according to every algorithm. 
+        time_series: The time series to which apply the outliers detection
+        algorithms.
+        returns: A tuple consisting of the label(cluster) to which every data point
+        belongs according to every algorithm. 
 
     """
 

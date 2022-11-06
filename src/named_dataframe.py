@@ -2,14 +2,14 @@ import pandas as pd
 
 class NamedDataframe(object):
     """
-    An object representing a time series and its identifier name based
-    on the JSON file from where it was readed.
+        An object representing a time series and its identifier name based
+        on the JSON file from where it was readed.
 
-    Parameters
-    --------------------
+        Parameters
+        --------------------
 
-    series: The pandas dataframe representing the time series.
-    id: The identifier name of the series.
+        series: The pandas dataframe representing the time series.
+        id: The identifier name of the series.
 
     """
 

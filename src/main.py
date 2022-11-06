@@ -1,18 +1,16 @@
-from data_processing import fetch_data
+from data_processing import fetch_data, marks_json_to_df
 from outls_plots import outls_scatter
 from outls_detection import detect_outls
 from windowing_process import build_windows
-from gps_tools import create_all_marks_csv
 from tools import samples_dir, marks_dir
 
 # from IPython.display import display
 
 def main():
-    create_all_marks_csv(f"{marks_dir}")
+    marks_dfs = marks_json_to_df(f"{marks_dir}")
+    time_seriess = fetch_data(f"{samples_dir}")
 
     # //\\// ------------------ Taking outliers along the whole time series --------------------------//\\//
-
-    time_seriess = fetch_data(f"{samples_dir}")
 
     for elem in time_seriess:
         predictions = detect_outls(elem.series)
@@ -24,9 +22,9 @@ def main():
 
     # for elem in time_seriess:
     #     windows = build_windows(elem.series)
-    a = harvisine_distance([23.1300619, -82.3774041], [23.1294062, -82.3581093], True)
+    # a = harvisine_distance([23.1300619, -82.3774041], [23.1294062, -82.3581093], True)
     
-    print(a)
+    # print(a)
 
 
 if __name__ == "__main__":

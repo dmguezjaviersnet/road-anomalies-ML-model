@@ -15,7 +15,6 @@ class MarkLocation:
         self.label = label
 
 
-
 def interpolation(
     gps_location1: tuple[float, float], gps_location2: tuple[float, float], count: int
 ) -> list[tuple[float, float]]:

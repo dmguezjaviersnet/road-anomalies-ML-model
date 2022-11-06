@@ -4,18 +4,18 @@ import pandas as pd
 
 def outls_scatter(time_series: pd.DataFrame, pred_sets: list[tuple[str, np.ndarray]], rows: int, cols: int) -> None:
     """
-    Build a scatterplot for each output of each outlier prediction
-    methods as subplots of a unique graph.
-    
-    Parameters
-    -------------------
+        Build a scatterplot for each output of each outlier prediction
+        methods as subplots of a unique graph.
+        
+        Parameters
+        -------------------
 
-    predictions: A list containing tuples string, ndarray identifying
-    the method and representing the prediction repectively
-    rows: number of plot rows
-    cols: number of plot cols
+        predictions: A list containing tuples string, ndarray identifying
+        the method and representing the prediction repectively
+        rows: number of plot rows
+        cols: number of plot cols
 
-    rows*cols must be greater or equal than len(prediction).
+        rows*cols must be greater or equal than len(prediction).
 
     """
 

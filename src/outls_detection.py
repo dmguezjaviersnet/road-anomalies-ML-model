@@ -5,13 +5,13 @@ from candt_anmly_unspv import find_candidates_unspv
 
 def detect_outls(time_series: pd.DataFrame):
     """ 
-    Detect outliers in a time series using several techniques such as 
-    threshold-based heuristics and unsupervised learning methods
+        Detect outliers in a time series using several techniques such as 
+        threshold-based heuristics and unsupervised learning methods
 
-    Parameters
-    ------------------
+        Parameters
+        ------------------
 
-    :time_series: The time series to which apply the outlier detection process.
+        :time_series: The time series to which apply the outlier detection process.
 
     """
 

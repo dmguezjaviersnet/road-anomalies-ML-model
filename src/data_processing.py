@@ -1,30 +1,16 @@
 import pandas as pd
 import json
-from os import listdir
+from os import listdir, path
 from os.path import isfile, join, splitext, exists
+import csv
 
 from gps_tools import add_interpolate_location_to_samples
-from named_series import NamedSeries
-from tools import proc_samples_dir, create_req_dirs
-
-
-def json_samples_to_df(path: str) -> list[NamedSeries]:
-import os
-import csv
 from named_dataframe import NamedDataframe
+from tools import proc_samples_dir, marks_google_dir, create_req_dirs
 from gps_tools import MarkLocation, add_interpolate_location_to_samples
 
 
-# -------------------- Required directories for the data ------------------------ #
-data_dir = Path("./data")
-csvs_dir = Path("./data/csvs")
-marks_dir = Path("./data/marks")
-samples_dir = Path("./data/samples")
-proc_samples_dir = Path("./data/csvs/proc_samples")
-marks_google_dir = Path("./data/csvs/marks")
-
-
-def json_to_df(path: str) -> list[NamedDataframe]:
+def json_samples_to_df(path: str) -> list[NamedDataframe]:
     """
         Build dataframes from JSON files each one representing a time series.
 
@@ -113,12 +99,12 @@ def convert_points_to_csv_gmaps_format(points: list[MarkLocation], output_name: 
             }
         )
     # write to csv
-    with open(f'./data/csvs/marks/{os.path.basename(output_name).split(".")[0]}.csv', 'w', encoding='UTF8', newline='') as f:
+    with open(f'{marks_google_dir}/{path.basename(output_name).split(".")[0]}.csv', 'w', encoding='UTF8', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
 
-def mark_json_to_mark_location(filename):
+def mark_json_to_mark_location(filename: str) -> list[MarkLocation]:
     '''
         Convert a json file to a list of MarkLocation objects
     '''
@@ -135,6 +121,7 @@ def mark_json_to_mark_location(filename):
                     mark["label"],
                 )
             )
+
     return points
 
 
@@ -154,7 +141,7 @@ def marks_json_to_df(path) -> list[NamedDataframe]:
     named_dfs = []
 
     #  for each file in the folder 
-    for filename in os.listdir(path):
+    for filename in listdir(path):
         # if the file is a json file
         if filename.endswith(".json"):
             # if the file is not already converted to csv
