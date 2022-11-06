@@ -1,11 +1,8 @@
 import copy
-import csv
 import json
 import nvector as nv
-import os
-
-from tools import marks_google_dir
 from math import radians, cos, sin, asin, sqrt
+import numpy as np
 
 
 class MarkLocation:
@@ -18,68 +15,10 @@ class MarkLocation:
         self.label = label
 
 
-def json_to_mark_location(filename):
-    points = []
-    with open(filename) as json_file:
-        marks = json.load(json_file)
-        for mark in marks["marks"]:
-            points.append(
-                MarkLocation(
-                    [mark["position"]["latitude"], mark["position"]["longitude"]],
-                    mark["label"],
-                )
-            )
-    return points
-
-
-def create_all_marks_csv(mark_folder_name: str):
-    '''
-        Convert all marks in a folder to CSV format for Google Maps
-        
-        Parameters
-        -----------
-        
-        mark_folder_name : name of the folder containing the marks
-    '''
-    for filename in os.listdir(mark_folder_name):
-        if filename.endswith(".json"):
-            convert_mark_json_to_csv(f"{mark_folder_name}/{filename}")
-
-def convert_mark_json_to_csv(filename: str):
-    points = json_to_mark_location(filename)
-    convert_csv_gmaps(points, filename)
-
-
-def convert_csv_gmaps(points: list[MarkLocation], output_name: str)-> None:
-    '''
-        ## Convert locations  to CSV format for Google Maps
-        Parameters
-        ----------
-        points : list of locations given in the [latitude, longitude] format
-        output_name : name of the output file  
-    '''
-    # csv header
-    fieldnames = ["Name", "Location", "Description"]
-    rows = []
-    # csv data
-    for i, markLocation in enumerate(points):
-        rows.append(
-            {
-                "Name": f"Point{i}",
-                "Location": (markLocation.location[0], markLocation.location[1]),
-                "Description": f"{markLocation.label}",
-            }
-        )
-    # write to csv
-    with open(f'./data/csvs/marks/{os.path.basename(output_name).split(".")[0]}.csv', 'w', encoding='UTF8', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
-
 
 def interpolation(
-    gps_location1: list[float], gps_location2: list[float], count: int
-) -> list[list[float]]:
+    gps_location1: tuple[float, float], gps_location2: tuple[float, float], count: int
+) -> list[tuple[float, float]]:
     """
     ## Interpolate between two GPS locations
     Given two GPS locations, this function will return a list of GPS locations that are interpolated between the two locations.
@@ -91,8 +30,9 @@ def interpolation(
     gps_location2 : GPS location2
     count: number of locations to be obtained by interpolation
     """
+
     # create list of GPS locations
-    new_points: list[list[float]] = []
+    new_points: list[tuple[float, float]] = []
     #  add location1 to list
     # new_points.append(gps_location1)
 
@@ -120,16 +60,16 @@ def interpolation(
         # convert nvector to  latitude, longotude GPS location
         lat_ti, lon_ti, _ = g_EB_E_ti.latlon_deg
         # add interpolated location to list
-        new_points.append([lat_ti, lon_ti])
+        new_points.append((lat_ti, lon_ti))
     # add location2 to list
     # new_points.append(gps_location2)
     return new_points
 
 
-def add_interpolate_location_to_samples(latitudesList, longitudesList):
+def add_interpolate_location_to_samples(latitudesList: np.ndarray, longitudesList: np.ndarray):
     currentLocation = 0
     latCopy = copy.deepcopy(latitudesList)
-    lntCopy = copy.deepcopy(longitudesList)
+    lntCopy = copy.deepcopy(longitudesList)    # 
     for i in range(1, len(latitudesList)):
         if (
             latitudesList[i] != latitudesList[currentLocation]
@@ -139,15 +79,15 @@ def add_interpolate_location_to_samples(latitudesList, longitudesList):
             count = i - currentLocation - 1
 
             if count > 0:
-                gps_location1 = [
+                gps_location1 = (
                     latitudesList[currentLocation]
                     if (i + 1) != len(latitudesList)
                     else latitudesList[currentLocation - 1],
                     longitudesList[currentLocation]
                     if (i + 1) != len(latitudesList)
                     else latitudesList[currentLocation - 1],
-                ]
-                gps_location2 = [latitudesList[i], longitudesList[i]]
+                )
+                gps_location2 = (latitudesList[i], longitudesList[i])
                 new_interpolate_points = interpolation(
                     gps_location1, gps_location2, count
                 )
@@ -161,10 +101,6 @@ def add_interpolate_location_to_samples(latitudesList, longitudesList):
 
     return latCopy, lntCopy
 
-
-# a = interpolation([23.13102, -82.36181], [23.13369, -82.36078], 10)
-# convert_csv_gmaps(a)
-# print(a)
 
 
 def haversine_distance(location1: tuple[float, float], location2: tuple[float, float], to_meters=False) -> float:
@@ -182,6 +118,7 @@ def haversine_distance(location1: tuple[float, float], location2: tuple[float, f
         distance between location1 and location2
 
     '''
+
     # approximate radius of earth in km
     # Its equatorial radius is 6378 km, but its polar radius is 6357 km (WGS84)
     R = 6371.0
@@ -203,5 +140,3 @@ def haversine_distance(location1: tuple[float, float], location2: tuple[float, f
 
 
 
-# convert_mark_json_to_csv(
-#     "./data/marks/TerminalTrenes-Ayesteran_marks.json")

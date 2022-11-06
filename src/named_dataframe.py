@@ -1,6 +1,6 @@
 import pandas as pd
 
-class NamedSeries(object):
+class NamedDataframe(object):
     """
     An object representing a time series and its identifier name based
     on the JSON file from where it was readed.
