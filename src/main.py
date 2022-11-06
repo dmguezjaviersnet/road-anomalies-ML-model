@@ -23,6 +23,7 @@ def main():
     # for elem in time_seriess:
     #     windows = build_windows(elem.series)
     # a = harvisine_distance([23.1300619, -82.3774041], [23.1294062, -82.3581093], True)
+    a = harvisine_distance((23.1300619, -82.3774041), (23.1294062, -82.3581093), True)
     
     # print(a)
 
