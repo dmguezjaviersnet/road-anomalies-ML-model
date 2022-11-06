@@ -8,14 +8,14 @@ from named_series import NamedSeries
 from tools import proc_samples_dir, create_req_dirs
 
 
-def json_to_df(path: str) -> list[NamedSeries]:
+def json_samples_to_df(path: str) -> list[NamedSeries]:
     """
-    Build dataframes from JSON files each one representing a time series.
+        Build dataframes from JSON files each one representing a time series.
 
-    Parameters
-    --------------------
+        Parameters
+        --------------------
 
-    path: Path from where to read the JSONs.
+        path: Path from where to read the JSONs.
 
     """
 
@@ -51,6 +51,10 @@ def json_to_df(path: str) -> list[NamedSeries]:
                     proc_data, columns=["X Accel", "Y Accel",
                                         "Z Accel", "Speed", "Latitude", "Longitude"]
                 )
+
+                label_col = ["No label"]*len(proc_data)
+                proc_df["Label"] = label_col
+
                 latitudesList = proc_df["Latitude"].to_numpy()
                 longitudesList = proc_df["Longitude"].to_numpy()
 
@@ -72,19 +76,19 @@ def json_to_df(path: str) -> list[NamedSeries]:
 
 def fetch_data(path: str) -> list[NamedSeries]:
     """
-    Get the pandas dataframes generated from raw JSON data in case
-    it doesn't already exists. Otherwise just read the csv.
+        Get the pandas dataframes generated from raw JSON data in case
+        it doesn't already exists. Otherwise just read the csv.
 
-    Parameters
-    ----------------
+        Parameters
+        ----------------
 
-    path: Path from where to read the JSONs.
+        path: Path from where to read the JSONs.
 
     """
 
     create_req_dirs()
 
     proc_dfs = []
-    proc_dfs = json_to_df(path)
+    proc_dfs = json_samples_to_df(path)
 
     return proc_dfs

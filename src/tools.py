@@ -11,7 +11,7 @@ marks_google_dir = Path("./data/csvs/marks")
 
 def create_req_dirs() -> None:
     """
-    Create the required directories in case they doesn't exist
+        Create the required directories in case they doesn't exist
 
     """
 

@@ -32,7 +32,7 @@ def json_to_mark_location(filename):
     return points
 
 
-def create_all_marks_cvs(mark_folder_name: str):
+def create_all_marks_csv(mark_folder_name: str):
     '''
         Convert all marks in a folder to CSV format for Google Maps
         
@@ -167,9 +167,9 @@ def add_interpolate_location_to_samples(latitudesList, longitudesList):
 # print(a)
 
 
-def harvisine_distance(location1, location2, to_meters=False)->float:
+def haversine_distance(location1: tuple[float, float], location2: tuple[float, float], to_meters=False) -> float:
     '''
-        Distance between two points on earth using Harvisine  formula
+        Distance between two points on earth using Haversine formula
 
         Parameters
         ----------

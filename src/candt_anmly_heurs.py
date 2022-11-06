@@ -3,16 +3,16 @@ import numpy as np
 
 def g_zero(window: pd.DataFrame, threshold=0.5) -> tuple[bool, np.ndarray]:
     """
-    Threshold-based heuristic to determine the presence of
-    an anomaly on the road using accelerometer readings from
-    the 3 axis.
+        Threshold-based heuristic to determine the presence of
+        an anomaly on the road using accelerometer readings from
+        the 3 axis.
 
-    Parameters
-    --------------------
+        Parameters
+        --------------------
 
-    window: window where to look for anomalies
-    threshold: threshold to decide whether the readings represent
-    an anomaly or not
+        window: window where to look for anomalies
+        threshold: threshold to decide whether the readings represent
+        an anomaly or not
 
     """
 
@@ -31,15 +31,15 @@ def g_zero(window: pd.DataFrame, threshold=0.5) -> tuple[bool, np.ndarray]:
 
 def z_thresh(window: pd.DataFrame, threshold=12) -> tuple[bool, np.ndarray]:
     """
-    Threshold-based heuristic to determine the presence of an anomaly on the road
-    using accelerometer reading from the z axis.
+        Threshold-based heuristic to determine the presence of an anomaly on the road
+        using accelerometer reading from the z axis.
 
-    Parameters
-    -------------------
+        Parameters
+        -------------------
 
-    window: window where to look for anomalies
-    threshold: threshold to decide whether the readings represent
-    an anomaly or not
+        window: window where to look for anomalies
+        threshold: threshold to decide whether the readings represent
+        an anomaly or not
 
     """
 
@@ -57,15 +57,15 @@ def z_thresh(window: pd.DataFrame, threshold=12) -> tuple[bool, np.ndarray]:
 
 def z_diff(window: pd.DataFrame, threshold=10) -> tuple[bool, np.ndarray]:
     """
-    Threshold-based heuristic to determine the presence of an anomaly on the road
-    using two consecutive accelerometer readings from the z axis
-    
-    Parameters
-    ----------------
+        Threshold-based heuristic to determine the presence of an anomaly on the road
+        using two consecutive accelerometer readings from the z axis
+        
+        Parameters
+        ----------------
 
-    window: window where to look for anomalies
-    threshold: threshold to decide whether the readings represent
-    an anomaly or not
+        window: window where to look for anomalies
+        threshold: threshold to decide whether the readings represent
+        an anomaly or not
 
     """
 
@@ -86,16 +86,16 @@ def z_diff(window: pd.DataFrame, threshold=10) -> tuple[bool, np.ndarray]:
 
 def std_dev_z(window: pd.DataFrame, threshold=5) -> bool:
     """
-    Threshold-based heuristic to determine the presence of an anomaly on the road
-    using the standard deviation of z axis accelerometer readings in a window of the time
-    series
-    
-    Parameters
-    --------------------
+        Threshold-based heuristic to determine the presence of an anomaly on the road
+        using the standard deviation of z axis accelerometer readings in a window of the time
+        series
+        
+        Parameters
+        --------------------
 
-    window: window where to look for anomalies
-    threshold: threshold to decide whether the readings represent
-    an anomaly or not
+        window: window where to look for anomalies
+        threshold: threshold to decide whether the readings represent
+        an anomaly or not
 
     """
 
@@ -103,18 +103,18 @@ def std_dev_z(window: pd.DataFrame, threshold=5) -> bool:
 
 def find_candidates_heurs(window: pd.DataFrame) -> tuple[list[bool], np.ndarray, np.ndarray, np.ndarray]:
     """
-    Decide using each one of the 4 heuristics, which window 
-    contains potential anomalies.
+        Decide using each one of the 4 heuristics, which window 
+        contains potential anomalies.
 
-    Parameters
-    ------------------
-    
-    window: The window generated with the windowing process
-    returns: A list identifying which heuristic identified
-    potential anomalies in the window. 0: z-thresh, 1: z-diff,
-    2: g-zero, 3: stdev(z), and in case of the first 3 methods also 
-    returns a list with the exact data points identified as potential
-    anomalies in the window
+        Parameters
+        ------------------
+        
+        window: The window generated with the windowing process
+        returns: A list identifying which heuristic identified
+        potential anomalies in the window. 0: z-thresh, 1: z-diff,
+        2: g-zero, 3: stdev(z), and in case of the first 3 methods also 
+        returns a list with the exact data points identified as potential
+        anomalies in the window
 
     """
 
