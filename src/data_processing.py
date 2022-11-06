@@ -108,10 +108,19 @@ def convert_points_to_csv_gmaps_format(points: list[MarkLocation], output_name: 
         writer.writeheader()
         writer.writerows(rows)
 
-def mark_json_to_mark_location(filename):
+def mark_json_to_mark_location(filename)-> list[MarkLocation]:
     '''
         Convert a json file to a list of MarkLocation objects
+
+        Parameters
+        -----------
+        filename: name of the json file
+
+        Output
+        ------
+        points: list of MarkLocation objects
     '''
+
     points = []
     # open json file
     with open(filename) as json_file:
@@ -129,7 +138,16 @@ def mark_json_to_mark_location(filename):
 
 
 def convert_mark_json_to_csv(filename: str):
+    '''
+        Convert a json file to a csv file for Google Maps
+        Parameters
+        -----------
+        filename: name of the json file
+    '''
+
+    # convert json file to MarkLocation objects
     points = mark_json_to_mark_location(filename)
+    # convert MarkLocation objects to csv format
     convert_points_to_csv_gmaps_format(points, filename)
 
 def marks_json_to_df(path) -> list[NamedDataframe]:
@@ -140,7 +158,14 @@ def marks_json_to_df(path) -> list[NamedDataframe]:
         -----------
 
         path : name of the folder containing the marks
+
+        Output:
+        ------
+
+        named_dfs : list of NamedDataframe objects
+
     '''
+
     named_dfs = []
 
     #  for each file in the folder 
