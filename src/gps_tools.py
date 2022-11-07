@@ -7,12 +7,16 @@ import numpy as np
 
 class MarkLocation:
 
-    location: list[float]
+    location: tuple[float, float]
+    accuracy: float
     label: str
 
-    def __init__(self, location: list[float], label: str):
+
+    def __init__(self, location: tuple[float, float], accuracy: float, label: str):
         self.location = location
+        self.accuracy = accuracy
         self.label = label
+
 
 
 def interpolation(
