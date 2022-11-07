@@ -6,7 +6,7 @@ from tools import marks_google_dir
 from gps_tools import haversine_distance
 
 
-def label_outls(outls: pd.DataFrame, series_name: str, radius=15) -> pd.DataFrame:
+def label_outls(outls: pd.DataFrame, series_name: str, radius=10) -> pd.DataFrame:
     """
         Asign a label to every outlier by searching the nearest mark using 
         haversine distance.

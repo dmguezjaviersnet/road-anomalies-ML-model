@@ -6,7 +6,7 @@ import csv
 
 from gps_tools import add_interpolate_location_to_samples
 from named_dataframe import NamedDataframe
-from tools import proc_samples_dir, marks_google_dir, create_req_dirs
+from tools import proc_samples_dir, marks_google_dir 
 from gps_tools import MarkLocation, add_interpolate_location_to_samples
 
 
@@ -35,23 +35,35 @@ def json_samples_to_df(path: str) -> list[NamedDataframe]:
             with open(f_path) as json_file:
                 data = json.load(json_file)
 
-                time_series = pd.json_normalize(data["records"])
+                time_series: pd.DataFrame = pd.json_normalize(data["records"])
 
                 accel_raw = time_series[["accelerometer"]].copy()
+                gyro_raw = time_series[["gyroscope"]].copy()
                 speed_raw = time_series[["speed"]].copy()
+
                 latitude_raw = time_series["gps.latitude"].copy()
                 longitude_raw = time_series["gps.longitude"].copy()
-                proc_data = []
+                acc_raw = time_series["gps.accuracy"].copy()
 
+                proc_data = []
                 for index in range(len(accel_raw)):
-                    proc_data.append(accel_raw.iloc[index][0])
-                    proc_data[-1].append(speed_raw.iloc[index][0])
-                    proc_data[-1].append(latitude_raw.iloc[index])
-                    proc_data[-1].append(longitude_raw.iloc[index])
+                    accel_data: list[float] = accel_raw.iloc[index][0]
+                    gyro_data: list[float] = gyro_raw.iloc[index][0]
+                    motion_sensors_data = accel_data + gyro_data
+
+                    speed_data = speed_raw.iloc[index][0]
+                    lat_data = latitude_raw.iloc[index]
+                    long_data = longitude_raw.iloc[index]
+                    acc_data = acc_raw.iloc[index]
+                    location_data = [lat_data, long_data, acc_data, speed_data]
+
+                    data = motion_sensors_data + location_data
+                    proc_data.append(data)
 
                 proc_df = pd.DataFrame(
-                    proc_data, columns=["X Accel", "Y Accel",
-                                        "Z Accel", "Speed", "Latitude", "Longitude"]
+                    proc_data, columns=["X Accel", "Y Accel", "Z Accel",
+                                        "X Gyro", "Y Gyro", "Z Gyro",
+                                        "Latitude", "Longitude","Accuracy", "Speed"]
                 )
 
                 label_col = ["-"]*len(proc_data)
@@ -84,10 +96,11 @@ def convert_points_to_csv_gmaps_format(points: list[MarkLocation], output_name: 
         ----------
         points : list of locations given in the [latitude, longitude] format
         output_name : name of the output file  
+
     '''
 
     # csv header
-    fieldnames = ["Name", "Location", "Description"]
+    fieldnames = ["Name", "Location", "Label"]
     rows = []
     # csv data
     for i, markLocation in enumerate(points):
@@ -95,7 +108,7 @@ def convert_points_to_csv_gmaps_format(points: list[MarkLocation], output_name: 
             {
                 "Name": f"Point{i}",
                 "Location": (markLocation.location[0], markLocation.location[1]),
-                "Description": f"{markLocation.label}",
+                "Label": f"{markLocation.label}",
             }
         )
     # write to csv
@@ -115,6 +128,7 @@ def mark_json_to_mark_location(filename: str) -> list[MarkLocation]:
         Output
         ------
         points: list of MarkLocation objects
+
     '''
 
     points = []
@@ -165,43 +179,24 @@ def marks_json_to_df(path) -> list[NamedDataframe]:
 
     named_dfs = []
 
-    #  for each file in the folder 
+    #  for each file in the folder
     for filename in listdir(path):
         # if the file is a json file
         if filename.endswith(".json"):
             # if the file is not already converted to csv
-            if not exists(f"{marks_google_dir}/{filename}.csv"):
+            main_name = splitext(filename)[0]
+            if not exists(f"{marks_google_dir}/{main_name}.csv"):
                 # convert the json file to csv
                 convert_mark_json_to_csv(f"{path}/{filename}")
                 # read the csv file
-                mark_df = pd.read_csv(f"{marks_google_dir}/{filename}.csv")
-                named_df = NamedDataframe(mark_df, filename)
+                mark_df = pd.read_csv(f"{marks_google_dir}/{main_name}.csv")
+                named_df = NamedDataframe(mark_df, main_name)
                 named_dfs.append(named_df)
 
             else:
                 # read the csv file
-                mark_df = pd.read_csv(f"{marks_google_dir}/{filename}.csv")
-                named_df = NamedDataframe(mark_df, filename)
+                mark_df = pd.read_csv(f"{marks_google_dir}/{main_name}.csv")
+                named_df = NamedDataframe(mark_df, main_name)
                 named_dfs.append(named_df)
 
     return named_dfs
-
-
-def fetch_data(path: str) -> list[NamedDataframe]:
-    """
-        Get the pandas dataframes generated from raw JSON data in case
-        it doesn't already exists. Otherwise just read the csv.
-
-        Parameters
-        ----------------
-
-        path: Path from where to read the JSONs.
-
-    """
-
-    create_req_dirs()
-
-    proc_dfs = []
-    proc_dfs = json_samples_to_df(path)
-
-    return proc_dfs
