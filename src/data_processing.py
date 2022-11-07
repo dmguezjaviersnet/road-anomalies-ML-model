@@ -100,7 +100,7 @@ def convert_points_to_csv_gmaps_format(points: list[MarkLocation], output_name: 
     '''
 
     # csv header
-    fieldnames = ["Name", "Location", "Label"]
+    fieldnames = ["Name", "Location", "Accuracy", "Label"]
     rows = []
     # csv data
     for i, markLocation in enumerate(points):
@@ -108,6 +108,7 @@ def convert_points_to_csv_gmaps_format(points: list[MarkLocation], output_name: 
             {
                 "Name": f"Point{i}",
                 "Location": (markLocation.location[0], markLocation.location[1]),
+                "Accuracy": f"{markLocation.accuracy}",
                 "Label": f"{markLocation.label}",
             }
         )
