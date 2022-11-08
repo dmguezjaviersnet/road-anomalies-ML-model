@@ -6,8 +6,9 @@ import csv
 
 from gps_tools import add_interpolate_location_to_samples
 from named_dataframe import NamedDataframe
-from tools import proc_samples_dir, marks_google_dir 
+from tools import proc_samples_dir, marks_google_dir
 from gps_tools import MarkLocation, add_interpolate_location_to_samples
+import statistics
 
 
 def json_samples_to_df(path: str) -> list[NamedDataframe]:
@@ -63,7 +64,7 @@ def json_samples_to_df(path: str) -> list[NamedDataframe]:
                 proc_df = pd.DataFrame(
                     proc_data, columns=["X Accel", "Y Accel", "Z Accel",
                                         "X Gyro", "Y Gyro", "Z Gyro",
-                                        "Latitude", "Longitude","Accuracy", "Speed"]
+                                        "Latitude", "Longitude", "Accuracy", "Speed"]
                 )
 
                 latitudesList = proc_df["Latitude"].to_numpy()
@@ -71,6 +72,13 @@ def json_samples_to_df(path: str) -> list[NamedDataframe]:
 
                 proc_df["Latitude"], proc_df["Longitude"] = add_interpolate_location_to_samples(
                     latitudesList, longitudesList)
+
+
+                # delete all rows with column 'Accuracy' is greater that 10
+
+                indexNames = proc_df[(proc_df['Accuracy'] > 10)].index
+                proc_df.drop(indexNames, inplace=True)
+                
 
                 proc_df.to_csv(f"{proc_samples_dir}/{f_name}.csv")
 
@@ -85,7 +93,6 @@ def json_samples_to_df(path: str) -> list[NamedDataframe]:
     return named_dfs
 
 
-
 def convert_points_to_csv_gmaps_format(points: list[MarkLocation], output_name: str)-> None:
     '''
         ## Convert locations  to CSV format for Google Maps
@@ -97,7 +104,7 @@ def convert_points_to_csv_gmaps_format(points: list[MarkLocation], output_name: 
     '''
 
     # csv header
-    fieldnames = ["Name", "Location", "Label"]
+    fieldnames = ["Name", "Location", "Accuracy", "Label"]
     rows = []
     # csv data
     for i, markLocation in enumerate(points):
@@ -105,6 +112,7 @@ def convert_points_to_csv_gmaps_format(points: list[MarkLocation], output_name: 
             {
                 "Name": f"Point{i}",
                 "Location": (markLocation.location[0], markLocation.location[1]),
+                "Accuracy": f"{markLocation.accuracy}",
                 "Label": f"{markLocation.label}",
             }
         )
@@ -113,6 +121,9 @@ def convert_points_to_csv_gmaps_format(points: list[MarkLocation], output_name: 
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
+
+def export_df_to_csv(df: pd.DataFrame, output_name):
+    df.to_csv(f"{output_name}.csv")
 
 def mark_json_to_mark_location(filename: str) -> list[MarkLocation]:
     '''
