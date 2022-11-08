@@ -3,10 +3,22 @@ from named_dataframe import NamedDataframe
 
 
 def add_features(ndt: NamedDataframe)-> NamedDataframe:
+    '''
+    Generate some extra features for the data set to improve the 
+    prediction accuracy.
 
-    ''''
+    Parameters
+    --------------
+
+    ndt: Named data frame from where to generate the new features.
+
+    Returns
+    -------------
+
+    A new data frame with the features added.
 
     '''
+
     dt = ndt.series
     dt['X / Z'] = dt['X Accel'] / dt['Z Accel']
 

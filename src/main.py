@@ -1,7 +1,7 @@
 from tabulate import tabulate
 from IPython.display import display
 
-from data_processing import  convert_mark_json_to_csv, export_df_to_csv, marks_json_to_df, json_samples_to_df
+from data_processing import convert_mark_json_to_csv, export_df_to_csv, marks_json_to_df, json_samples_to_df
 from features_processing import add_features
 from outls_plots import outls_scatter
 from outls_detection import detect_outls

@@ -16,9 +16,14 @@ def json_samples_to_df(path: str) -> list[NamedDataframe]:
         Build dataframes from JSON files each one representing a time series.
 
         Parameters
-        --------------------
+        ----------------
 
         path: Path from where to read the JSONs.
+
+        Returns
+        -----------------
+
+        A list of pandas dataframes containing each time series.
 
     '''
 
@@ -93,11 +98,13 @@ def json_samples_to_df(path: str) -> list[NamedDataframe]:
     return named_dfs
 
 
-def convert_points_to_csv_gmaps_format(points: list[MarkLocation], output_name: str)-> None:
+def convert_points_to_csv_gmaps_format(points: list[MarkLocation], output_name: str) -> None:
     '''
         ## Convert locations  to CSV format for Google Maps
+
         Parameters
         ----------
+
         points : list of locations given in the [latitude, longitude] format
         output_name : name of the output file  
 
@@ -122,7 +129,7 @@ def convert_points_to_csv_gmaps_format(points: list[MarkLocation], output_name: 
         writer.writeheader()
         writer.writerows(rows)
 
-def export_df_to_csv(df: pd.DataFrame, output_name):
+def export_df_to_csv(df: pd.DataFrame, output_name: str) -> None:
     df.to_csv(f"{output_name}.csv")
 
 def mark_json_to_mark_location(filename: str) -> list[MarkLocation]:
@@ -133,9 +140,10 @@ def mark_json_to_mark_location(filename: str) -> list[MarkLocation]:
         -----------
         filename: name of the json file
 
-        Output
-        ------
-        points: list of MarkLocation objects
+        Returns
+        ----------
+
+       A list of MarkLocation objects
 
     '''
 
@@ -157,12 +165,15 @@ def mark_json_to_mark_location(filename: str) -> list[MarkLocation]:
     return points
 
 
-def convert_mark_json_to_csv(filename: str):
+def convert_mark_json_to_csv(filename: str) -> None:
     '''
         Convert a json file to a csv file for Google Maps
+
         Parameters
         -----------
+
         filename: name of the json file
+
     '''
 
     # convert json file to MarkLocation objects
@@ -179,10 +190,10 @@ def marks_json_to_df(path) -> list[NamedDataframe]:
 
         path : name of the folder containing the marks
 
-        Output:
-        ------
+        Returns
+        -----------
 
-        named_dfs : list of NamedDataframe objects
+        A list of NamedDataframe objects
 
     '''
 

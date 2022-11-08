@@ -11,11 +11,12 @@ def outls_scatter(time_series: pd.DataFrame, pred_sets: list[tuple[str, np.ndarr
         -------------------
 
         predictions: A list containing tuples string, ndarray identifying
-        the method and representing the prediction repectively
-        rows: number of plot rows
-        cols: number of plot cols
+        the method and representing the prediction repectively.
+        rows: number of plot rows.
+        cols: number of plot cols.
 
         rows*cols must be greater or equal than len(prediction).
+
 
     '''
 

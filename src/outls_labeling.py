@@ -11,10 +11,18 @@ def label_outls(outls: pd.DataFrame, series_name: str, radius=10) -> list[int]:
         Asign a label to every outlier by searching the nearest mark using 
         haversine distance.
 
+        Parameters
+        --------------
+
         outls: The set of outliers.
         series_name: The name of the series to choose the corresponding mark set.
         radius: The radius (in meters) within where to search for a mark to
         assign the label.
+
+        Returns
+        ---------------
+
+        A list of ints representing the classes
 
     '''
 
@@ -39,7 +47,15 @@ def find_marks_file(series_name: str) -> pd.DataFrame:
         Uses the time series identifier name to find the corresponding
         marks file.
 
+        Parameters
+        --------------
+
         series_name: Name of the time series.
+
+        Returns
+        --------------
+
+        A pandas dataframe with the corresponding marks.
 
     '''
 
