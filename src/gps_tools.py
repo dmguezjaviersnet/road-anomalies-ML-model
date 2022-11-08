@@ -22,17 +22,18 @@ class MarkLocation:
 def interpolation(
     gps_location1: tuple[float, float], gps_location2: tuple[float, float], count: int
 ) -> list[tuple[float, float]]:
-    """
-    ## Interpolate between two GPS locations
-    Given two GPS locations, this function will return a list of GPS locations that are interpolated between the two locations.
-    The number of locations to be obtained by interpolation is passed as the count parameter.
+    '''
+        ## Interpolate between two GPS locations
+        Given two GPS locations, this function will return a list of GPS locations that are interpolated between the two locations.
+        The number of locations to be obtained by interpolation is passed as the count parameter.
 
-    Parameters
-    ----------
-    gps_location1 : GPS location1
-    gps_location2 : GPS location2
-    count: number of locations to be obtained by interpolation
-    """
+        Parameters
+        ----------
+        gps_location1 : GPS location1
+        gps_location2 : GPS location2
+        count: number of locations to be obtained by interpolation
+
+    '''
 
     # create list of GPS locations
     new_points: list[tuple[float, float]] = []

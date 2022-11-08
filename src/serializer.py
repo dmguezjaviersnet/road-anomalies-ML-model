@@ -3,7 +3,7 @@ from os import mkdir, path
 
 
 def serialize_data(data, file_name: str) -> None:
-    """
+    '''
         Serialize object into a pickle file.
         
         Parameters
@@ -11,8 +11,7 @@ def serialize_data(data, file_name: str) -> None:
 
         data: data to serialize.
         file_name: name of the file to where store the serialized data.
-
-    """
+    '''
 
     if not path.exists("./serialized_data"):
         mkdir("./serialized_data")
@@ -21,7 +20,7 @@ def serialize_data(data, file_name: str) -> None:
 
 
 def make_pickle_file(file_name, data) -> None:
-    """
+    '''
         Create pickle file.
         
         Parameters
@@ -30,14 +29,14 @@ def make_pickle_file(file_name, data) -> None:
         data: data to serialize.
         file_name: name of the file to where store the serialized data.
 
-    """
+    '''
 
     with open(f"{file_name}.pickle", "wb") as outfile:
         pickle.dump(data, outfile)
 
 
 def deserialize_data(file_name) -> None:
-    """
+    '''
         Deserialize pickle file into an object.
 
         Parameters
@@ -45,7 +44,7 @@ def deserialize_data(file_name) -> None:
 
         file_name: name of the file to deserialize.
 
-    """
+    '''
 
     if path.exists(file_name):
         data = unpick_pickle_file(file_name)
@@ -53,7 +52,7 @@ def deserialize_data(file_name) -> None:
 
 
 def unpick_pickle_file(file_name) -> None:
-    """
+    '''
         Get data from pickle file.
 
         Parameters
@@ -61,7 +60,7 @@ def unpick_pickle_file(file_name) -> None:
 
         file_name: name of the file from where to deserialize the data.
 
-    """
+    '''
 
     with open(file_name, "rb") as f:
         data = pickle.load(f)

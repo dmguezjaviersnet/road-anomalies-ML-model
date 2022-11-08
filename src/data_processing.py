@@ -11,7 +11,7 @@ from gps_tools import MarkLocation, add_interpolate_location_to_samples
 
 
 def json_samples_to_df(path: str) -> list[NamedDataframe]:
-    """
+    '''
         Build dataframes from JSON files each one representing a time series.
 
         Parameters
@@ -19,7 +19,7 @@ def json_samples_to_df(path: str) -> list[NamedDataframe]:
 
         path: Path from where to read the JSONs.
 
-    """
+    '''
 
     json_files = [
         (f"{path}/{f_name}", splitext(f_name)[0]) for f_name in listdir(path) if isfile(join(path, f_name))
@@ -65,9 +65,6 @@ def json_samples_to_df(path: str) -> list[NamedDataframe]:
                                         "X Gyro", "Y Gyro", "Z Gyro",
                                         "Latitude", "Longitude","Accuracy", "Speed"]
                 )
-
-                label_col = ["-"]*len(proc_data)
-                proc_df["Label"] = label_col
 
                 latitudesList = proc_df["Latitude"].to_numpy()
                 longitudesList = proc_df["Longitude"].to_numpy()

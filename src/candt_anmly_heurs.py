@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 def g_zero(window: pd.DataFrame, threshold=0.5) -> tuple[bool, np.ndarray]:
-    """
+    '''
         Threshold-based heuristic to determine the presence of
         an anomaly on the road using accelerometer readings from
         the 3 axis.
@@ -14,7 +14,7 @@ def g_zero(window: pd.DataFrame, threshold=0.5) -> tuple[bool, np.ndarray]:
         threshold: threshold to decide whether the readings represent
         an anomaly or not
 
-    """
+    '''
 
     anmly_prsnce = False
     anmlies = [1]*len(window)
@@ -30,7 +30,7 @@ def g_zero(window: pd.DataFrame, threshold=0.5) -> tuple[bool, np.ndarray]:
 
 
 def z_thresh(window: pd.DataFrame, threshold=12) -> tuple[bool, np.ndarray]:
-    """
+    '''
         Threshold-based heuristic to determine the presence of an anomaly on the road
         using accelerometer reading from the z axis.
 
@@ -41,7 +41,7 @@ def z_thresh(window: pd.DataFrame, threshold=12) -> tuple[bool, np.ndarray]:
         threshold: threshold to decide whether the readings represent
         an anomaly or not
 
-    """
+    '''
 
     anmly_prsnce = False
     anmlies = [1]*len(window)
@@ -56,7 +56,7 @@ def z_thresh(window: pd.DataFrame, threshold=12) -> tuple[bool, np.ndarray]:
     return anmly_prsnce, np.array(anmlies)
 
 def z_diff(window: pd.DataFrame, threshold=10) -> tuple[bool, np.ndarray]:
-    """
+    '''
         Threshold-based heuristic to determine the presence of an anomaly on the road
         using two consecutive accelerometer readings from the z axis
         
@@ -67,7 +67,7 @@ def z_diff(window: pd.DataFrame, threshold=10) -> tuple[bool, np.ndarray]:
         threshold: threshold to decide whether the readings represent
         an anomaly or not
 
-    """
+    '''
 
     anmly_prsnce = False
     anmlies = [1]*len(window)
@@ -85,7 +85,7 @@ def z_diff(window: pd.DataFrame, threshold=10) -> tuple[bool, np.ndarray]:
     return anmly_prsnce, np.array(anmlies)
 
 def std_dev_z(window: pd.DataFrame, threshold=5) -> bool:
-    """
+    '''
         Threshold-based heuristic to determine the presence of an anomaly on the road
         using the standard deviation of z axis accelerometer readings in a window of the time
         series
@@ -97,12 +97,12 @@ def std_dev_z(window: pd.DataFrame, threshold=5) -> bool:
         threshold: threshold to decide whether the readings represent
         an anomaly or not
 
-    """
+    '''
 
     return abs(window["Z Accel"].std()) > threshold
 
 def find_candidates_heurs(window: pd.DataFrame) -> tuple[list[bool], np.ndarray, np.ndarray, np.ndarray]:
-    """
+    '''
         Decide using each one of the 4 heuristics, which window 
         contains potential anomalies.
 
@@ -116,7 +116,7 @@ def find_candidates_heurs(window: pd.DataFrame) -> tuple[list[bool], np.ndarray,
         returns a list with the exact data points identified as potential
         anomalies in the window
 
-    """
+    '''
 
     candidates = [False]*4
     anmly = False
