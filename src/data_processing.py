@@ -79,10 +79,8 @@ def json_samples_to_df(path: str) -> list[NamedDataframe]:
 
 
                 # delete all rows with column 'Accuracy' is greater that 10
-                print(f"1{proc_df.head(10)}")
                 indexNames = proc_df[(proc_df['Accuracy'] > 10)].index
                 proc_df.drop(indexNames, inplace=True)
-                print(proc_df.head(10))
 
                 proc_df.to_csv(f"{proc_samples_dir}/{f_name}.csv", index= False)
 

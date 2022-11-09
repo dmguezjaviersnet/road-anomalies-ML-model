@@ -80,25 +80,38 @@ def feature_selection(X: pd.DataFrame, y: list[int], features_to_select: int):
         ('forward_selection', sfs_selector),
         ('backward_selection', sbs_selector),
         ('select_from_model_selection', sfm_selector),
-        ('recursive_elimination', rfe_selector)
+        ('recursive_elimination', rfe_selector),
+        ('cv_recursive_elimination', rfe_cv_selector)
     ]
 
-    cv_feature_selectors = [
-        ('cv_recursive_elimination', rfe_cv_selector),
-    ]
+    # cv_feature_selectors = [
+    #     ('cv_recursive_elimination', rfe_cv_selector),
+    # ]
 
-    features = []
-    cv_features = []
+    result = []
+    # cv_features = []
 
     for selector_name, selector in feature_selectors:
         selector.fit(X, y)
-        features.append((selector_name, X.columns[selector.get_support()]))
+        if selector_name == 'cv_recursive_elimination':
+            selected = selector.support_
+            all_features = X.columns
+            features = []
+            for i in range(len(selected)):
+                if selected[i]:
+                    features.append(all_features[i])
+            result.append((selector_name, features))
+        else:
+            features = []
+            for elem in X.columns[selector.get_support()]:
+                features.append(elem) 
+            result.append((selector_name, features))
 
-    for cv_selector_name, cv_selector in cv_feature_selectors:
-        selector = cv_selector.fit(X, y)
-        print(f"Features selected by {cv_selector_name} {cv_selector.support_}")
+    # for cv_selector_name, cv_selector in cv_feature_selectors:
+    #     selector = cv_selector.fit(X, y)
+    #     print(f"Features selected by {cv_selector_name} {}")
 
-    return features, cv_features
+    return result
 
 def remove_noise_features(time_series: pd.DataFrame):
     time_series = time_series.drop(['Latitude', 'Longitude', 'Accuracy'], axis=1)

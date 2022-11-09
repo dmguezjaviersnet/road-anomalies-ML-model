@@ -15,7 +15,6 @@ def main():
     marks_dfs = marks_json_to_df(f"{marks_dir}")
     time_seriess_df = json_samples_to_df(f"{samples_dir}")
     
-    print(time_seriess_df[0].series.head(10))
     time_seriess_df_w_nf = [add_features(elem) for elem in time_seriess_df]
     # export_df_to_csv(with_features.series, "temporal")
     # //\\// ------------------ Taking outliers along the whole time series --------------------------//\\//
@@ -25,15 +24,16 @@ def main():
         export_df_to_csv(elem.series, f"{elem.id}_doble")
         for outl_method_name, outl_pred in predictions:
             outliers = filter_outliers(elem.series, outl_pred)
-            # export_df_to_csv(outliers, f"{elem.id}_outliers")
-            y = label_outls(outliers, elem.id, 10)
-            outliers = remove_noise_features(outliers)
-
-            X = outliers
-            # X['EsBache'] = y
-            # export_df_to_csv(X, f"labeled_outliers")
-            features_selected=feature_selection(X, y, 6)
-            print(f"Features selected with outliers detected using {outl_method_name}\n{features_selected}")
+            if len(outliers) > 0:
+                # export_df_to_csv(outliers, f"{elem.id}_outliers")
+                y = label_outls(outliers, elem.id, 10)
+                outliers = remove_noise_features(outliers)
+    
+                X = outliers
+                # X['EsBache'] = y
+                # export_df_to_csv(X, f"labeled_outliers")
+                features_selected=feature_selection(X, y, 6)
+                print(f"Features selected with outliers detected using {outl_method_name}\n{features_selected}")
                 
 
         #outls_scatter(elem.series, predictions, rows=2, cols=3)
