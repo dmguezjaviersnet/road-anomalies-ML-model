@@ -36,8 +36,9 @@ def add_features(ndt: NamedDataframe)-> NamedDataframe:
     dt['MedianDevY'] = (dt['Y Accel'] - statistics.median(dt['Y Accel']))**2 
     dt['MeanDevZ'] = (dt['Z Accel'] - statistics.mean(dt['Z Accel']))**2
     dt['MedianDevZ'] = (dt['Z Accel'] - statistics.median(dt['Z Accel']))**2 
-
-    
+    dt.reset_index(drop=True, inplace=True)
+    dt.drop("Unnamed: 0",axis=1)
+    print(dt.head(10))
     return NamedDataframe(dt, ndt.id)
 
 def feature_selection_sfs(X, y, direction = 'backward'):
