@@ -34,7 +34,7 @@ def json_samples_to_df(path: str) -> list[NamedDataframe]:
     named_dfs = []
 
     for f_path, f_name in json_files:
-        main_name = f_name.split('_')[0]
+        # main_name = f_name.split('_')[0]
         if not exists(f"{proc_samples_dir}/{f_name}.csv"):
             print(f"File {f_name} is not serialized, collecting JSON...")
 
@@ -87,12 +87,12 @@ def json_samples_to_df(path: str) -> list[NamedDataframe]:
 
                 proc_df.to_csv(f"{proc_samples_dir}/{f_name}.csv")
 
-                named_df = NamedDataframe(proc_df, main_name)
+                named_df = NamedDataframe(proc_df, f_name)
                 named_dfs.append(named_df)
 
         else:
             series = pd.read_csv(f"{proc_samples_dir}/{f_name}.csv")
-            named_df = NamedDataframe(series, main_name)
+            named_df = NamedDataframe(series, f_name)
             named_dfs.append(named_df)
 
     return named_dfs

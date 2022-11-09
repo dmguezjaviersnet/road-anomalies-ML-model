@@ -121,7 +121,7 @@ def find_candidates_heurs(window: pd.DataFrame) -> tuple[list[bool], np.ndarray,
     candidates = [False]*4
     anmly = False
 
-    anmly, z_thresh_anmlies = z_thresh(window)
+    anmly, z_thresh_anmlies = z_thresh(window, 15)
     if anmly: candidates[0] = True
 
     anmly, z_diff_anmlies = z_diff(window)

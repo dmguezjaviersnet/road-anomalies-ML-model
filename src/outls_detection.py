@@ -22,3 +22,21 @@ def detect_outls(time_series: pd.DataFrame):
                     ("dbscan", dbscan_pred), ("optics", optics_pred), ("ocsvm", ocsvm_pred)]
 
     return predictions
+
+def filter_outliers(time_series: pd.DataFrame, predictions: list):
+    '''
+        Get the outliers from the predictions of the outlier detection process 
+
+        Parameters
+        ------------------
+
+        :time_series: time series dataframe
+        :predictions: list of predictions from the outlier detection process
+
+    '''
+
+    time_series["Outlier"] = predictions
+    indexes_to_remove = time_series[(time_series['Outlier'] != -1)].index
+    time_series = time_series.drop(indexes_to_remove, axis=0)
+    time_series = time_series.drop(['Outlier'], axis=1)
+    return time_series
