@@ -49,7 +49,8 @@ def add_features(ndt: NamedDataframe) -> NamedDataframe:
 
 def feature_selection(X: pd.DataFrame, y: list[int], features_to_select: int):
     '''
-        Select the best features for the model using Sequential Feature Selection
+        Select the best features for the model using several feature
+        selection strategies.
 
         Parameters
         -----------
@@ -61,7 +62,8 @@ def feature_selection(X: pd.DataFrame, y: list[int], features_to_select: int):
         Returns
         -----------
 
-        A series of selected features with several feature selection methods.
+        A list of tuples representing the selector method name and the
+        selected features with each one of them.
 
     '''
 
@@ -101,6 +103,7 @@ def feature_selection(X: pd.DataFrame, y: list[int], features_to_select: int):
                 if selected[i]:
                     features.append(all_features[i])
             result.append((selector_name, features))
+
         else:
             features = []
             for elem in X.columns[selector.get_support()]:

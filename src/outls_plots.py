@@ -22,7 +22,7 @@ def outls_scatter(time_series: pd.DataFrame, pred_sets: list[tuple[str, np.ndarr
     graph_amount = len(pred_sets)
     assert graph_amount <= rows * cols
 
-    values = time_series[["X Accel",  "Y Accel", "Z Accel"]].values
+    values = time_series[["X Accel", "Y Accel", "Z Accel", "X Gyro", "Y Gyro", "Z Gyro"]].values
 
     for graph_index in range(graph_amount): 
         method_name, y_pred = pred_sets[graph_index]

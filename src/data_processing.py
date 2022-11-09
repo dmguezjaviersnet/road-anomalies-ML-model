@@ -77,15 +77,15 @@ def json_samples_to_df(path: str) -> list[NamedDataframe]:
                 proc_df["Latitude"], proc_df["Longitude"] = add_interpolate_location_to_samples(
                     latitudesList, longitudesList)
 
-
-                # delete all rows with column 'Accuracy' is greater that 10
+                # ///\\// ------ Delete all readings with less than 10m of accuracy -------- //\\//
                 indexNames = proc_df[(proc_df['Accuracy'] > 10)].index
                 proc_df.drop(indexNames, inplace=True)
 
-                proc_df.to_csv(f"{proc_samples_dir}/{f_name}.csv", index= False)
+                proc_df.to_csv(f"{proc_samples_dir}/{f_name}.csv", index=False)
 
                 named_df = NamedDataframe(proc_df, f_name)
                 named_dfs.append(named_df)
+
         else:
             series = pd.read_csv(f"{proc_samples_dir}/{f_name}.csv")
             named_df = NamedDataframe(series, f_name)
@@ -126,7 +126,7 @@ def convert_points_to_csv_gmaps_format(points: list[MarkLocation], output_name: 
         writer.writerows(rows)
 
 def export_df_to_csv(df: pd.DataFrame, output_name: str) -> None:
-    df.to_csv(f"{output_name}.csv", index= False)
+    df.to_csv(f"{output_name}.csv")
 
 def mark_json_to_mark_location(filename: str) -> list[MarkLocation]:
     '''
