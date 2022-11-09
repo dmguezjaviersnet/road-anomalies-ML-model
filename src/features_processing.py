@@ -83,11 +83,6 @@ def feature_selection_sfs(X: pd.DataFrame, y: list[int], features_to_select: int
         features.append((selector_name, X.columns[selector.get_support()]))
 
     return features
-    X = pd.DataFrame(scaler.fit_transform(X), columns = X.columns)
-    print(X.head())
-    sfs_selector = SequentialFeatureSelector(estimator=LogisticRegression(), n_features_to_select = 10, cv =10, direction =direction)
-    sfs_selector.fit(X, y)
-    return X.columns[sfs_selector.get_support()]
 
 def remove_noise_features(time_series: pd.DataFrame):
     time_series = time_series.drop(['Latitude', 'Longitude'], axis=1)
