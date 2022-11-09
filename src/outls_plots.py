@@ -17,7 +17,6 @@ def outls_scatter(time_series: pd.DataFrame, pred_sets: list[tuple[str, np.ndarr
 
         rows*cols must be greater or equal than len(prediction).
 
-
     '''
 
     graph_amount = len(pred_sets)

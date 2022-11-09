@@ -37,7 +37,7 @@ def label_outls(outls: pd.DataFrame, series_name: str, radius=10) -> list[int]:
             distance = haversine_distance(mark_location, outl_location)
 
             if distance < radius:
-                classes.append(1)
+                classes[outl_idx] = 1
                 break
 
     return classes

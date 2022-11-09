@@ -17,8 +17,8 @@ def main():
     export_df_to_csv(with_features.series, "temporal")
     # //\\// ------------------ Taking outliers along the whole time series --------------------------//\\//
 
-    # for elem in time_seriess_df:
-    #     predictions = detect_outls(elem.series)
+    for elem in time_seriess_df:
+        predictions = detect_outls(elem.series)
         # outls_scatter(elem.series, predictions, rows=2, cols=3)
 
     # print(tabulate(time_seriess_df[0].series, headers = 'keys', tablefmt = 'psql'))
