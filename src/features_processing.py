@@ -44,6 +44,7 @@ def add_features(ndt: NamedDataframe) -> NamedDataframe:
     dt['MedianDevY'] = (dt['Y Accel'] - statistics.median(dt['Y Accel']))**2 
     dt['MeanDevZ'] = (dt['Z Accel'] - statistics.mean(dt['Z Accel']))**2
     dt['MedianDevZ'] = (dt['Z Accel'] - statistics.median(dt['Z Accel']))**2 
+
     return NamedDataframe(dt, ndt.id)
 
 def feature_selection(X: pd.DataFrame, y: list[int], features_to_select: int):

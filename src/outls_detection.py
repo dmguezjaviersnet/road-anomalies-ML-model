@@ -9,9 +9,14 @@ def detect_outls(time_series: pd.DataFrame):
         threshold-based heuristics and unsupervised learning methods
 
         Parameters
-        ------------------
+        -----------
 
-        :time_series: The time series to which apply the outlier detection process.
+        time_series: The time series to which apply the outlier detection process.
+
+        Returns
+        ------------
+
+        A list of tuples with method name and corresponding outliers.
 
     '''
 
@@ -23,15 +28,20 @@ def detect_outls(time_series: pd.DataFrame):
 
     return predictions
 
-def filter_outliers(time_series: pd.DataFrame, predictions: list):
+def filter_outliers(time_series: pd.DataFrame, predictions: list) -> pd.DataFrame:
     '''
-        Get the outliers from the predictions of the outlier detection process 
+        Select the outlier data from the predictions of the outlier detection process.
 
         Parameters
-        ------------------
+        ------------
 
-        :time_series: time series dataframe
-        :predictions: list of predictions from the outlier detection process
+        time_series: Time series dataframe.
+        predictions: List of predictions from the outlier detection process.
+
+        Returns
+        ------------
+
+        A dataframe with the outlier data.
 
     '''
 
@@ -39,4 +49,5 @@ def filter_outliers(time_series: pd.DataFrame, predictions: list):
     indexes_to_remove = time_series[(time_series['Outlier'] != -1)].index
     time_series = time_series.drop(indexes_to_remove, axis=0)
     time_series = time_series.drop(['Outlier'], axis=1)
+
     return time_series

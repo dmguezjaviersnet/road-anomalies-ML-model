@@ -23,7 +23,7 @@ def find_candidates_unspv(time_series: pd.DataFrame) -> tuple:
 
     """
 
-    values = time_series[["X Accel", "Y Accel", "Z Accel"]].values
+    values = time_series[["X Accel", "Y Accel", "Z Accel", "X Gyro", "Y Gyro", "Z Gyro"]].values
 
     y_pred_dbscan = DBSCAN(eps=0.4, min_samples=30).fit_predict(values)
     y_pred_optics = OPTICS(min_samples=20, max_eps=.35).fit_predict(values)
