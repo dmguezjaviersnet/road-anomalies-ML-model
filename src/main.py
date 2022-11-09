@@ -24,16 +24,17 @@ def main():
         export_df_to_csv(elem.series, f"{elem.id}_doble")
         for outl_method_name, outl_pred in predictions:
             outliers = filter_outliers(elem.series, outl_pred)
-            if len(outliers) > 0:
+            if len(outliers):
                 # export_df_to_csv(outliers, f"{elem.id}_outliers")
                 y = label_outls(outliers, elem.id, 10)
-                outliers = remove_noise_features(outliers)
-    
-                X = outliers
-                # X['EsBache'] = y
-                # export_df_to_csv(X, f"labeled_outliers")
-                features_selected=feature_selection(X, y, 3)
-                print(f"Features selected with outliers detected using {outl_method_name}\n{features_selected}")
+                if not all(data_label == 0 for data_label in y) and not all(data_label == 1 for data_label in y):
+                    outliers = remove_noise_features(outliers)
+        
+                    X = outliers
+                    # X['EsBache'] = y
+                    # export_df_to_csv(X, f"labeled_outliers")
+                    features_selected = feature_selection(X, y, 6)
+                    print(f"Features selected with outliers detected using {outl_method_name}\n{features_selected}")
                 
 
         #outls_scatter(elem.series, predictions, rows=2, cols=3)
