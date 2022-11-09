@@ -1,7 +1,7 @@
 import statistics
 
 from named_dataframe import NamedDataframe
-from sklearn.feature_selection import SequentialFeatureSelector, RFECV, SelectFromModel
+from sklearn.feature_selection import SequentialFeatureSelector, RFE, SelectFromModel
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import ExtraTreesClassifier
 from sklearn import preprocessing
@@ -38,7 +38,6 @@ def add_features(ndt: NamedDataframe) -> NamedDataframe:
     dt['MedianDevY'] = (dt['Y Accel'] - statistics.median(dt['Y Accel']))**2 
     dt['MeanDevZ'] = (dt['Z Accel'] - statistics.mean(dt['Z Accel']))**2
     dt['MedianDevZ'] = (dt['Z Accel'] - statistics.median(dt['Z Accel']))**2 
-    
     return NamedDataframe(dt, ndt.id)
 
 def feature_selection_sfs(X: pd.DataFrame, y: list[int], features_to_select: int):
@@ -62,12 +61,12 @@ def feature_selection_sfs(X: pd.DataFrame, y: list[int], features_to_select: int
     scaler = preprocessing.StandardScaler()
     X = pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
 
-    clsf = ExtraTreesClassifier(n_estimators=50)
-
-    sfs_selector = SequentialFeatureSelector(estimator=clsf, n_features_to_select=features_to_select, direction='forward')
-    sbs_selector = SequentialFeatureSelector(estimator=clsf, n_features_to_select=features_to_select, direction='backward')
-    rfe_selector = RFECV(estimator=clsf, min_features_to_select=features_to_select)
-    sfm_selector = SelectFromModel(estimator=clsf, max_features=features_to_select, prefit=True)
+    clsf = ExtraTreesClassifier(n_estimators=50, n_jobs=-1)
+    lrc = LogisticRegression()
+    sfs_selector = SequentialFeatureSelector(estimator=clsf, n_features_to_select=features_to_select, direction='forward', n_jobs=-1)
+    sbs_selector = SequentialFeatureSelector(estimator=clsf, n_features_to_select=features_to_select, direction='backward', n_jobs=-1)
+    rfe_selector = RFE(estimator=clsf, n_features_to_select = features_to_select, step=1)
+    sfm_selector = SelectFromModel(estimator=clsf, max_features=features_to_select)
 
     feature_selectors = [
         ('forward_selection', sfs_selector),
@@ -85,5 +84,5 @@ def feature_selection_sfs(X: pd.DataFrame, y: list[int], features_to_select: int
     return features
 
 def remove_noise_features(time_series: pd.DataFrame):
-    time_series = time_series.drop(['Latitude', 'Longitude'], axis=1)
+    time_series = time_series.drop(['Latitude', 'Longitude', 'Accuracy'], axis=1)
     return time_series

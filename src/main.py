@@ -15,7 +15,7 @@ def main():
     marks_dfs = marks_json_to_df(f"{marks_dir}")
     time_seriess_df = json_samples_to_df(f"{samples_dir}")
     
-
+    print(time_seriess_df[0].series.head(10))
     time_seriess_df_w_nf = [add_features(elem) for elem in time_seriess_df]
     # export_df_to_csv(with_features.series, "temporal")
     # //\\// ------------------ Taking outliers along the whole time series --------------------------//\\//
@@ -28,14 +28,14 @@ def main():
                 result_outlier_detections = pred[1]
                 outliers = filter_outliers(elem.series, result_outlier_detections)
                 
-               
+                
                 y = label_outls(outliers, elem.id, 10)
                 outliers = remove_noise_features(outliers)
-                export_df_to_csv(outliers, f"{elem.id}_outliers")
+                #export_df_to_csv(outliers, f"{elem.id}_outliers")
                 X = outliers
                 # X['EsBache'] = y
                 # export_df_to_csv(X, f"labeled_outliers")
-                feature_selected=feature_selection_sfs(X, y, "backward")
+                feature_selected=feature_selection_sfs(X, y, 3)
                 print(feature_selected)
                 
 
