@@ -2,7 +2,7 @@ from os import listdir
 import pandas as pd
 import re
 
-from tools import marks_google_dir
+from tools import marks_google_dir, str_to_tuple
 from gps_tools import haversine_distance
 
 
@@ -29,20 +29,26 @@ def label_outls(outls: pd.DataFrame, series_name: str, radius=10) -> list[int]:
     marks = find_marks_file(series_name)
 
     classes = [0]*len(outls)
-    for outl_idx in range(len(outls)):
-        for mark_idx in range(len(marks)):
-            mark_location = marks.iloc[mark_idx, "Location"]
-            outl_location = (outls.iloc[outl_idx, "Latitude"], outls.iloc[outl_idx, "Longitude"])
 
-            distance = haversine_distance(mark_location, outl_location)
+    if not marks is None:
+        for outl_idx in range(len(outls)):
+            for mark_idx in range(len(marks)):
+                mdf_location_index = marks.columns.get_loc("Location")
+                mark_location = str_to_tuple(str(marks.iloc[mark_idx, mdf_location_index]))
+                odf_latitude_index = outls.columns.get_loc("Latitude")
+                odf_longitude_index = outls.columns.get_loc("Longitude")
+                outl_location = (float(str(outls.iloc[outl_idx, odf_latitude_index])), float(str(outls.iloc[outl_idx, odf_longitude_index])))
 
-            if distance < radius:
-                classes[outl_idx] = 1
-                break
+                distance = haversine_distance(mark_location, outl_location, True)
+
+                if distance < radius:
+                    classes[outl_idx] = 1
+                    break
 
     return classes
 
-def find_marks_file(series_name: str) -> pd.DataFrame:
+
+def find_marks_file(series_name: str) -> pd.DataFrame | None:
     '''
         Uses the time series identifier name to find the corresponding
         marks file.
@@ -61,11 +67,8 @@ def find_marks_file(series_name: str) -> pd.DataFrame:
 
     marks_regex = rf"{series_name}_marks"
 
-    marks = []
     for f_name in listdir(marks_google_dir):
-        main_name = f_name.split('_')[0]
-        if re.match(marks_regex, main_name):
-            marks = pd.read_csv(f"{marks_google_dir}/{marks_regex}.csv")
-            break
+        if re.match(marks_regex, f_name):
+            return pd.read_csv(f"{marks_google_dir}/{marks_regex}.csv")
 
-    return marks
+    return None
