@@ -57,3 +57,7 @@ def feature_selection_sfs(X, y, direction = 'backward'):
     sfs_selector = SequentialFeatureSelector(estimator=LogisticRegression(), n_features_to_select = 10, cv =10, direction =direction)
     sfs_selector.fit(X, y)
     return X.columns[sfs_selector.get_support()]
+
+def remove_noise_features(time_series: pd.DataFrame):
+    time_series = time_series.drop(['Latitude', 'Longitude'], axis=1)
+    return time_series
