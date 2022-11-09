@@ -1,8 +1,8 @@
 from unittest import result
 from tabulate import tabulate
 from IPython.display import display
-from data_processing import convert_mark_json_to_csv, export_df_to_csv, marks_json_to_df, json_samples_to_df
-from features_processing import add_features, feature_selection_sfs, remove_noise_features
+from data_processing import export_df_to_csv, marks_json_to_df, json_samples_to_df
+from features_processing import add_features, feature_selection, remove_noise_features
 from outls_labeling import label_outls
 from outls_plots import outls_scatter
 from outls_detection import detect_outls, filter_outliers
@@ -23,20 +23,17 @@ def main():
     for elem in time_seriess_df_w_nf:
         predictions = detect_outls(elem.series)
         export_df_to_csv(elem.series, f"{elem.id}_doble")
-        for pred in predictions:
-            if pred[0] == "dbscan":
-                result_outlier_detections = pred[1]
-                outliers = filter_outliers(elem.series, result_outlier_detections)
-                
-                
-                y = label_outls(outliers, elem.id, 10)
-                outliers = remove_noise_features(outliers)
-                #export_df_to_csv(outliers, f"{elem.id}_outliers")
-                X = outliers
-                # X['EsBache'] = y
-                # export_df_to_csv(X, f"labeled_outliers")
-                feature_selected=feature_selection_sfs(X, y, 3)
-                print(feature_selected)
+        for outl_method_name, outl_pred in predictions:
+            outliers = filter_outliers(elem.series, outl_pred)
+            # export_df_to_csv(outliers, f"{elem.id}_outliers")
+            y = label_outls(outliers, elem.id, 10)
+            outliers = remove_noise_features(outliers)
+
+            X = outliers
+            # X['EsBache'] = y
+            # export_df_to_csv(X, f"labeled_outliers")
+            features_selected=feature_selection(X, y, 6)
+            print(f"Features selected with outliers detected using {outl_method_name}\n{features_selected}")
                 
 
         #outls_scatter(elem.series, predictions, rows=2, cols=3)

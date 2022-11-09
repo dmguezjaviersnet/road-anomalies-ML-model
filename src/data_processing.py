@@ -74,7 +74,6 @@ def json_samples_to_df(path: str) -> list[NamedDataframe]:
 
                 latitudesList = proc_df["Latitude"].to_numpy()
                 longitudesList = proc_df["Longitude"].to_numpy()
-
                 proc_df["Latitude"], proc_df["Longitude"] = add_interpolate_location_to_samples(
                     latitudesList, longitudesList)
 
@@ -89,7 +88,6 @@ def json_samples_to_df(path: str) -> list[NamedDataframe]:
 
                 named_df = NamedDataframe(proc_df, f_name)
                 named_dfs.append(named_df)
-
         else:
             series = pd.read_csv(f"{proc_samples_dir}/{f_name}.csv")
             named_df = NamedDataframe(series, f_name)

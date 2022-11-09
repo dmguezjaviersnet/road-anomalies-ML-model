@@ -1,7 +1,13 @@
 import statistics
 
 from named_dataframe import NamedDataframe
-from sklearn.feature_selection import SequentialFeatureSelector, RFE, SelectFromModel
+from sklearn.feature_selection import (
+    SequentialFeatureSelector,
+    RFE,
+    RFECV,
+    SelectFromModel
+)
+
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import ExtraTreesClassifier
 from sklearn import preprocessing
@@ -40,7 +46,7 @@ def add_features(ndt: NamedDataframe) -> NamedDataframe:
     dt['MedianDevZ'] = (dt['Z Accel'] - statistics.median(dt['Z Accel']))**2 
     return NamedDataframe(dt, ndt.id)
 
-def feature_selection_sfs(X: pd.DataFrame, y: list[int], features_to_select: int):
+def feature_selection(X: pd.DataFrame, y: list[int], features_to_select: int):
     '''
         Select the best features for the model using Sequential Feature Selection
 
@@ -65,23 +71,33 @@ def feature_selection_sfs(X: pd.DataFrame, y: list[int], features_to_select: int
     lrc = LogisticRegression()
     sfs_selector = SequentialFeatureSelector(estimator=clsf, n_features_to_select=features_to_select, direction='forward', n_jobs=-1)
     sbs_selector = SequentialFeatureSelector(estimator=clsf, n_features_to_select=features_to_select, direction='backward', n_jobs=-1)
-    rfe_selector = RFE(estimator=clsf, n_features_to_select = features_to_select, step=1)
+    rfe_selector = RFE(estimator=clsf, n_features_to_select=features_to_select)
+    rfe_cv_selector = RFECV(estimator=clsf, min_features_to_select=features_to_select, n_jobs=-1)
     sfm_selector = SelectFromModel(estimator=clsf, max_features=features_to_select)
 
     feature_selectors = [
         ('forward_selection', sfs_selector),
         ('backward_selection', sbs_selector),
-        ('recursive_elimination', rfe_selector),
-        ('select_from_model_selection', sfm_selector)
+        ('select_from_model_selection', sfm_selector),
+        ('recursive_elimination', rfe_selector)
+    ]
+
+    cv_feature_selectors = [
+        ('cv_recursive_elimination', rfe_cv_selector),
     ]
 
     features = []
+    cv_features = []
 
     for selector_name, selector in feature_selectors:
         selector.fit(X, y)
         features.append((selector_name, X.columns[selector.get_support()]))
 
-    return features
+    for cv_selector_name, cv_selector in cv_feature_selectors:
+        selector = cv_selector.fit(X, y)
+        print(f"Features selected by {cv_selector_name} {cv_selector.support_}")
+
+    return features, cv_features
 
 def remove_noise_features(time_series: pd.DataFrame):
     time_series = time_series.drop(['Latitude', 'Longitude', 'Accuracy'], axis=1)

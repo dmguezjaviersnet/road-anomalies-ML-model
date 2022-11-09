@@ -136,7 +136,7 @@ def train_with_cv(clsf, param_grid, X_train: pd.DataFrame, y_train: list[int]):
     '''
 
     cross_validator = RepeatedStratifiedKFold(n_splits=5, n_repeats=30, random_state=121)
-    hyp_estm_cv = GridSearchCV(estimator=clsf, param_grid=param_grid, scoring=metrics.f1_score, cv=cross_validator)
+    hyp_estm_cv = GridSearchCV(estimator=clsf, param_grid=param_grid, scoring=metrics.f1_score, cv=cross_validator, n_jobs=-1)
     hyp_estm_cv.fit(X_train, y_train)
 
     results = pd.DataFrame(hyp_estm_cv.cv_results_)
