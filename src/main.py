@@ -2,7 +2,7 @@ from unittest import result
 from tabulate import tabulate
 from IPython.display import display
 from data_processing import convert_mark_json_to_csv, export_df_to_csv, marks_json_to_df, json_samples_to_df
-from features_processing import add_features, feature_selection_sfs
+from features_processing import add_features, feature_selection_sfs, remove_noise_features
 from outls_labeling import label_outls
 from outls_plots import outls_scatter
 from outls_detection import detect_outls, filter_outliers
@@ -22,13 +22,16 @@ def main():
 
     for elem in time_seriess_df_w_nf:
         predictions = detect_outls(elem.series)
+        export_df_to_csv(elem.series, f"{elem.id}_doble")
         for pred in predictions:
             if pred[0] == "dbscan":
                 result_outlier_detections = pred[1]
                 outliers = filter_outliers(elem.series, result_outlier_detections)
-                export_df_to_csv(outliers, f"{elem.id}_outliers")
+                
+               
                 y = label_outls(outliers, elem.id, 10)
-                print(outliers.head())
+                outliers = remove_noise_features(outliers)
+                export_df_to_csv(outliers, f"{elem.id}_outliers")
                 X = outliers
                 # X['EsBache'] = y
                 # export_df_to_csv(X, f"labeled_outliers")
