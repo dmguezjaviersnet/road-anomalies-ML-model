@@ -51,10 +51,10 @@ def feature_selection_sfs(X, y, direction = 'backward'):
         direction: The direction of the selection, forward or backward
     '''
     # Selecting the Best important features according to Logistic Regression
-    print(X.head())
+    # print(X.head())
     scaler = preprocessing.StandardScaler()
     X = pd.DataFrame(scaler.fit_transform(X), columns = X.columns)
-    print(X.head())
+    # print(X.head())
     sfs_selector = SequentialFeatureSelector(estimator=LogisticRegression(), n_features_to_select = 10, cv =10, direction =direction)
     sfs_selector.fit(X, y)
     return X.columns[sfs_selector.get_support()]
