@@ -8,7 +8,6 @@ from gps_tools import add_interpolate_location_to_samples
 from named_dataframe import NamedDataframe
 from tools import proc_samples_dir, marks_google_dir, test_csvs_dir
 from gps_tools import MarkLocation, add_interpolate_location_to_samples
-import statistics
 
 
 def json_samples_to_df(path: str) -> list[NamedDataframe]:
@@ -177,23 +176,16 @@ def convert_mark_json_to_csv(filename: str) -> None:
     # convert MarkLocation objects to csv format
     convert_points_to_csv_gmaps_format(points, filename)
 
-def marks_json_to_df(path) -> list[NamedDataframe]:
+def marks_json_to_df(path) -> None:
     '''
-        Convert all json marks  in a folder to CSV format for Google Maps
+        Convert all json marks in a folder to CSV format for Google Maps
 
         Parameters
         -----------
 
         path : name of the folder containing the marks
 
-        Returns
-        -----------
-
-        A list of NamedDataframe objects
-
     '''
-
-    named_dfs = []
 
     #  for each file in the folder
     for filename in listdir(path):
@@ -204,15 +196,3 @@ def marks_json_to_df(path) -> list[NamedDataframe]:
             if not exists(f"{marks_google_dir}/{main_name}.csv"):
                 # convert the json file to csv
                 convert_mark_json_to_csv(f"{path}/{filename}")
-                # read the csv file
-                mark_df = pd.read_csv(f"{marks_google_dir}/{main_name}.csv")
-                named_df = NamedDataframe(mark_df, main_name)
-                named_dfs.append(named_df)
-
-            else:
-                # read the csv file
-                mark_df = pd.read_csv(f"{marks_google_dir}/{main_name}.csv")
-                named_df = NamedDataframe(mark_df, main_name)
-                named_dfs.append(named_df)
-
-    return named_dfs

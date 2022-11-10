@@ -1,6 +1,5 @@
 from pathlib import Path
 from os.path import exists
-import re
 import pandas as pd
 
 # //\\//  -------------------- Required directories for the data ----------------------- //\\\// #
@@ -26,7 +25,7 @@ def create_req_dirs() -> None:
             req_dir.mkdir(parents=True, exist_ok=True)
 
 
-def remove_parenthesis(s: str):
+def remove_parenthesis(s: str) -> str:
     '''
         Remove parenthesis from a string.
 
@@ -44,7 +43,7 @@ def remove_parenthesis(s: str):
 
     return s.replace("(", "").replace(")", "")
 
-def str_to_tuple(s: str):
+def str_to_tuple(s: str) -> tuple:
     '''
         Convert a string to a tuple.
 
@@ -77,6 +76,7 @@ def remove_split_scores(df: pd.DataFrame) -> pd.DataFrame:
         Dataframe without the split scores.
 
     '''
+
     regex = r"split\d+_test_score"
     return df[df.columns.drop(list(df.filter(regex=regex)))]
 

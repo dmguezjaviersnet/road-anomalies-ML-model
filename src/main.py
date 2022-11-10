@@ -28,7 +28,8 @@ def main():
 
         # export_df_to_csv(elem.series, f"{elem.id}_doble")
         outl_methods_sel = [elem for elem in predictions if elem[0] == "z_thresh" or elem[0] == "dbscan"]
-        f_index = 1
+
+        output_csv_idx = 1
         for outl_method_name, outl_pred in outl_methods_sel:
             outliers = filter_outliers(elem.series, outl_pred)
             if len(outliers):
@@ -43,8 +44,7 @@ def main():
                     # X['EsBache'] = y
                     # export_df_to_csv(X, f"labeled_outliers")
                     features_selected_sets = feature_selection(X, y, 3)
-                    print(f"---------- Features selected with outliers detected using {outl_method_name} ----------\n")
-                    
+                    print(f"---------------- Features selected with outliers detected using {outl_method_name} ----------------\n")
                     
                     for selector_name, features_selected_set in features_selected_sets:
                         print(f"Features selected with selector {selector_name}")
@@ -54,24 +54,11 @@ def main():
                         ms_results = select_model(df_sel_feats, y)
                         
                         for model_name, result in ms_results:
-                            print(f"-------- Resultados de {model_name}---------")
-                            print(result)
-                            export_df_to_csv(result, f"{model_name}-Results-{f_index}")
+                            print(f"----- Results with {model_name} -----")
+                            print(f"{result}\n\n")
+                            export_df_to_csv(result, f"{model_name}-Results-{output_csv_idx}")
 
-                        f_index += 1
-                        
-
-    # print(tabulate(time_seriess_df[0].series, headers = 'keys', tablefmt = 'psql'))
-    # candt_windows = filter_candt_windows(windows, )
-
-    # //\\// ------------------ Taking outliers by windows --------------------------//\\//
-
-    # for elem in time_seriess:
-    #     windows = build_windows(elem.series)
-    # a = harvisine_distance([23.1300619, -82.3774041], [23.1294062, -82.3581093], True)
-    #print(tabulate(with_features.series, headers = 'keys', tablefmt = 'psql'))
-    #convert_mark_json_to_csv('data/marks/Ruta5TerminalTrenes-Ayesteran_y_19mayo_marks.json')
-    # print(a)
+                        output_csv_idx += 1
 
 if __name__ == "__main__":
     main()
