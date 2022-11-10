@@ -10,7 +10,7 @@ from sklearn.feature_selection import (
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import ExtraTreesClassifier
-from sklearn import preprocessing
+from sklearn.preprocessing import StandardScaler
 
 import pandas as pd
 
@@ -67,7 +67,7 @@ def feature_selection(X: pd.DataFrame, y: list[int], features_to_select: int):
 
     '''
 
-    scaler = preprocessing.StandardScaler()
+    scaler = StandardScaler()
     X = pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
 
     clsf = ExtraTreesClassifier(n_estimators=50, n_jobs=-1)
