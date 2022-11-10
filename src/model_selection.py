@@ -1,6 +1,7 @@
 from sklearn import metrics
 # from sklearn.utils import resample
 # from sklearn.experimental import enable_halving_search_cv
+from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.ensemble import RandomForestClassifier
@@ -34,9 +35,19 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
         series_outl: The time series to use in the model selection process.
         class_vector: The vector with the corresponding classes.
 
+        Returns
+        -----------------
+
+        A list of tuples with the name of the classifier and the corresponding grdi 
+        search results pandas dataframe.
+
     '''
 
-    X_train, X_test, y_train, y_test = train_test_split(series_outls, class_vector, train_size=0.7)
+    scaler = StandardScaler()
+    series_outls_scaled = pd.DataFrame(scaler.fit_transform(series_outls), columns=series_outls.columns)
+
+    X_train_scaled, X_test_scaled, y_train_scaled, y_test_scaled = train_test_split(series_outls_scaled, class_vector, train_size=0.6)
+    X_train, X_test, y_train, y_test = train_test_split(series_outls, class_vector, train_size=0.6)
 
     knn_param_grid = [
         { 
@@ -73,12 +84,21 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
 
     logreg_param_grid = [
         {
-            'penalty': ['l1', 'l2'],
+            'penalty': ['l2'],
             'tol': [1e-3, 1e-4, 1e-5, 1e-6],
             'C': [1, 10, 100, 1000],
-            'solver': ['liblinear', 'sag', 'saga'],
-            'max_iter': [100, 1000, 2000]
-        }
+            'solver': ['lbfgs'],
+            'max_iter': [100, 500, 1000]
+        },
+
+        # {
+        #     'penalty': ['l1'],
+        #     'tol': [1e-3, 1e-4, 1e-5, 1e-6],
+        #     'C': [1, 10, 100, 1000],
+        #     'solver': ['saga'],
+        #     'max_iter': [100, 500, 1000],
+        #     'l1_ratio': [1]
+        # }
     ]
 
     svm_param_grid = [
@@ -110,9 +130,17 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
                 ("SVM", svm_clsf, svm_param_grid)
     ]
 
+    results = []
     for clsf_name, clsf, clsf_param_grid in clsfrs:
-        train_with_cv(clsf, clsf_param_grid, X_train, y_train)
-        
+        if clsf_name == "Log Regression":
+            clsf_gs_results = (clsf_name, train_with_cv(clsf, clsf_param_grid, X_train_scaled, y_train_scaled))         
+
+        else:
+            clsf_gs_results = (clsf_name, train_with_cv(clsf, clsf_param_grid, X_train, y_train))         
+
+        results.append(clsf_gs_results)
+
+    return results
 
 def train_with_cv(clsf, param_grid, X_train: pd.DataFrame, y_train: list[int]):
     '''
@@ -136,10 +164,12 @@ def train_with_cv(clsf, param_grid, X_train: pd.DataFrame, y_train: list[int]):
     '''
 
     cross_validator = RepeatedStratifiedKFold(n_splits=5, n_repeats=30, random_state=121)
-    hyp_estm_cv = GridSearchCV(estimator=clsf, param_grid=param_grid, scoring=metrics.f1_score, cv=cross_validator, n_jobs=-1)
+    hyp_estm_cv = GridSearchCV(estimator=clsf, param_grid=param_grid, cv=cross_validator, n_jobs=-1)
     hyp_estm_cv.fit(X_train, y_train)
 
-    results = pd.DataFrame(hyp_estm_cv.cv_results_)
+    gsearch_results = pd.DataFrame(hyp_estm_cv.cv_results_)
+
+    return gsearch_results
 
     # fold = 1
     # f1_scores = []

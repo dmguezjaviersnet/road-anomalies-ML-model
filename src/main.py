@@ -1,6 +1,7 @@
 from unittest import result
 from tabulate import tabulate
 from IPython.display import display
+
 from data_processing import export_df_to_csv, marks_json_to_df, json_samples_to_df
 from features_processing import add_features, feature_selection, remove_noise_features
 from outls_labeling import label_outls
@@ -8,6 +9,7 @@ from outls_plots import outls_scatter
 from outls_detection import detect_outls, filter_outliers
 from windowing_process import build_windows
 from tools import samples_dir, marks_dir, create_req_dirs
+from model_selection import select_model
 
 
 def main():
@@ -39,10 +41,14 @@ def main():
                     # X['EsBache'] = y
                     # export_df_to_csv(X, f"labeled_outliers")
                     features_selected_sets = feature_selection(X, y, 6)
-                    print(f"------------ Features selected with outliers detected using {outl_method_name} ----------\n")
+                    print(f"---------- Features selected with outliers detected using {outl_method_name} ----------\n")
                     for selector_name, features_selected_set in features_selected_sets:
                         print(f"Features selected with selector {selector_name}")
                         print(f"{features_selected_set}\n")
+
+                        df_sel_feats = X[features_selected_set]
+                        ms_results = select_model(df_sel_feats, y)
+                        
 
     # print(tabulate(time_seriess_df[0].series, headers = 'keys', tablefmt = 'psql'))
     # candt_windows = filter_candt_windows(windows, )
