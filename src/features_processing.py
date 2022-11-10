@@ -38,13 +38,18 @@ def add_features(ndt: NamedDataframe) -> NamedDataframe:
     dt['SpeedvsZ'] = dt['Speed'] / dt['Z Accel']
 
     # Statistic featurers
-    dt['MeanDevX'] = (dt['X Accel'] - statistics.mean(dt['X Accel']))**2
-    dt['MedianDevX'] = (dt['X Accel'] - statistics.median(dt['X Accel']))**2 
-    dt['MeanDevY'] = (dt['Y Accel'] - statistics.mean(dt['Y Accel']))**2
-    dt['MedianDevY'] = (dt['Y Accel'] - statistics.median(dt['Y Accel']))**2 
-    dt['MeanDevZ'] = (dt['Z Accel'] - statistics.mean(dt['Z Accel']))**2
-    dt['MedianDevZ'] = (dt['Z Accel'] - statistics.median(dt['Z Accel']))**2 
-
+    dt['MeanDevAccelX'] = abs(dt['X Accel'] - statistics.mean(dt['X Accel']))
+    dt['MedianDevAccelX'] = abs(dt['X Accel'] - statistics.median(dt['X Accel']))
+    dt['MeanDevAccelY'] = abs(dt['Y Accel'] - statistics.mean(dt['Y Accel']))
+    dt['MedianDevAccelY'] = abs(dt['Y Accel'] - statistics.median(dt['Y Accel']))
+    dt['MeanDevAccelZ'] = abs(dt['Z Accel'] - statistics.mean(dt['Z Accel']))
+    dt['MedianDevAccelZ'] = abs(dt['Z Accel'] - statistics.median(dt['Z Accel']))
+    dt['MeanDevGyroX'] = abs(dt['X Gyro'] - statistics.mean(dt['X Gyro']))
+    dt['MedianDevGyroX'] = abs(dt['X Gyro'] - statistics.median(dt['X Gyro']))
+    dt['MeanDevGyroY'] = abs(dt['Y Gyro'] - statistics.mean(dt['Y Gyro']))
+    dt['MedianDevGyroY'] = abs(dt['Y Gyro'] - statistics.median(dt['Y Gyro']))
+    dt['MeanDevGyroZ'] = abs(dt['Z Gyro'] - statistics.mean(dt['Z Gyro']))
+    dt['MedianDevGyroZ'] = abs(dt['Z Gyro'] - statistics.median(dt['Z Gyro']))
     return NamedDataframe(dt, ndt.id)
 
 def feature_selection(X: pd.DataFrame, y: list[int], features_to_select: int):
