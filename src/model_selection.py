@@ -24,6 +24,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from tools import remove_split_scores
+
 def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
     '''
         Train and evaluate several Machine Learning supervised methods to find the one
@@ -85,10 +87,13 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
     logreg_param_grid = [
         {
             'penalty': ['l2'],
-            'tol': [1e-3, 1e-4, 1e-5, 1e-6],
-            'C': [1, 10, 100, 1000],
+            #'tol': [1e-3, 1e-4, 1e-5, 1e-6],
+           'tol': [1e-3, 1e-5],
+            ##'C': [1, 10, 100, 1000],
+            'C': [1, 100],
             'solver': ['lbfgs'],
-            'max_iter': [100, 500, 1000]
+            #'max_iter': [100, 500, 1000]
+            'max_iter': [100, 500]
         },
 
         # {
@@ -103,15 +108,19 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
 
     svm_param_grid = [
         {
-            'C': [1, 10, 100, 1000],
+            #'C': [1, 10, 100, 1000],
+            'C': [1, 100],
             'kernel': ['linear']
         },
 
         {
-            'C': [1, 10, 100, 1000],
-            'kernel': ['poly', 'rbf', 'sigmoid'],
-            'degree': [3, 4, 5, 6],
-            'gamma': [0.01, 0.001, 0.0001],
+            #'C': [1, 10, 100, 1000],
+            'C': [1, 100],
+            #'kernel': ['poly', 'rbf', 'sigmoid'],
+            'kernel': ['rbf'],
+            #'degree': [3, 4, 5, 6],
+            #'gamma': [0.01, 0.001, 0.0001],
+            'gamma': [0.01, 0.0001],
             'probability': [True]
         }
     ]
@@ -123,15 +132,16 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
     svm_clsf = SVC()
 
     clsfrs = [
-                ("KNN", knn_clsf, knn_param_grid),
-                ("Decision Tree", dt_clsf, dt_param_grid),
-                ("Random Forest", rdf_clsf, rdf_param_grid),
+                #("KNN", knn_clsf, knn_param_grid),
+                #("Decision Tree", dt_clsf, dt_param_grid),
+                #("Random Forest", rdf_clsf, rdf_param_grid),
                 ("Log Regression", logreg_clsf, logreg_param_grid),
-                ("SVM", svm_clsf, svm_param_grid)
+                #("SVM", svm_clsf, svm_param_grid)
     ]
 
     results = []
     for clsf_name, clsf, clsf_param_grid in clsfrs:
+        print(f"-------------------Running model {clsf_name}------------------------")
         if clsf_name == "Log Regression":
             clsf_gs_results = (clsf_name, train_with_cv(clsf, clsf_param_grid, X_train_scaled, y_train_scaled))         
 
@@ -169,7 +179,7 @@ def train_with_cv(clsf, param_grid, X_train: pd.DataFrame, y_train: list[int]):
 
     gsearch_results = pd.DataFrame(hyp_estm_cv.cv_results_)
 
-    return gsearch_results
+    return remove_split_scores(gsearch_results)
 
     # fold = 1
     # f1_scores = []

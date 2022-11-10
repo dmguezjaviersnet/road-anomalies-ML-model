@@ -6,7 +6,7 @@ import csv
 
 from gps_tools import add_interpolate_location_to_samples
 from named_dataframe import NamedDataframe
-from tools import proc_samples_dir, marks_google_dir
+from tools import proc_samples_dir, marks_google_dir, test_csvs_dir
 from gps_tools import MarkLocation, add_interpolate_location_to_samples
 import statistics
 
@@ -126,7 +126,7 @@ def convert_points_to_csv_gmaps_format(points: list[MarkLocation], output_name: 
         writer.writerows(rows)
 
 def export_df_to_csv(df: pd.DataFrame, output_name: str) -> None:
-    df.to_csv(f"{output_name}.csv")
+    df.to_csv(f"{test_csvs_dir}/{output_name}.csv")
 
 def mark_json_to_mark_location(filename: str) -> list[MarkLocation]:
     '''

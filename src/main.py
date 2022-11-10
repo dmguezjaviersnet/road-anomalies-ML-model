@@ -10,6 +10,7 @@ from outls_detection import detect_outls, filter_outliers
 from windowing_process import build_windows
 from tools import samples_dir, marks_dir, create_req_dirs
 from model_selection import select_model
+import pandas as pd
 
 
 def main():
@@ -26,8 +27,9 @@ def main():
         # outls_scatter(elem.series, predictions, rows=2, cols=3)
 
         # export_df_to_csv(elem.series, f"{elem.id}_doble")
-
-        for outl_method_name, outl_pred in predictions:
+        outl_methods_sel = [elem for elem in predictions if elem[0] == "z_thresh" or elem[0] == "dbscan"]
+        f_index = 1
+        for outl_method_name, outl_pred in outl_methods_sel:
             outliers = filter_outliers(elem.series, outl_pred)
             if len(outliers):
                 # export_df_to_csv(outliers, f"{elem.id}_outliers")
@@ -40,14 +42,23 @@ def main():
                     X = outliers
                     # X['EsBache'] = y
                     # export_df_to_csv(X, f"labeled_outliers")
-                    features_selected_sets = feature_selection(X, y, 6)
+                    features_selected_sets = feature_selection(X, y, 3)
                     print(f"---------- Features selected with outliers detected using {outl_method_name} ----------\n")
+                    
+                    
                     for selector_name, features_selected_set in features_selected_sets:
                         print(f"Features selected with selector {selector_name}")
                         print(f"{features_selected_set}\n")
 
-                        df_sel_feats = X[features_selected_set]
+                        df_sel_feats: pd.DataFrame = pd.DataFrame(X[features_selected_set]) 
                         ms_results = select_model(df_sel_feats, y)
+                        
+                        for model_name, result in ms_results:
+                            print(f"-------- Resultados de {model_name}---------")
+                            print(result)
+                            export_df_to_csv(result, f"{model_name}-Results-{f_index}")
+
+                        f_index += 1
                         
 
     # print(tabulate(time_seriess_df[0].series, headers = 'keys', tablefmt = 'psql'))

@@ -85,10 +85,10 @@ def feature_selection(X: pd.DataFrame, y: list[int], features_to_select: int):
 
     feature_selectors = [
         ('forward_selection', sfs_selector),
-        ('backward_selection', sbs_selector),
+        # ('backward_selection', sbs_selector),
         ('select_from_model_selection', sfm_selector),
-        ('recursive_elimination', rfe_selector),
-        ('cv_recursive_elimination', rfe_cv_selector)
+        # ('recursive_elimination', rfe_selector),
+        # ('cv_recursive_elimination', rfe_cv_selector)
     ]
 
     # cv_feature_selectors = [
