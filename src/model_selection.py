@@ -77,11 +77,11 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
     rdf_param_grid = [
         {
             # 'n_estimators': [100, 120, 140, 160, 180],
-            "n_estimators": [100, 120, 150, 240],
+            "n_estimators": [100, 120, 150],
             # 'criterion': ['gini', 'entropy'],
             "criterion": ["entropy", "gini"],
             # 'max_depth': [3, 4, 5, 6],
-            "max_depth": [20],
+            "max_depth": [10,  13, 16],
             # 'max_features': ['sqrt', 'log2', None]
             "max_features": ["log2", "sqrt"],
         }
@@ -136,9 +136,9 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
     clsfrs = [
         # ("KNN", knn_clsf, knn_param_grid),
         # ("Decision Tree", dt_clsf, dt_param_grid),
-        # ("Random Forest", rdf_clsf, rdf_param_grid),
+        ("Random Forest", rdf_clsf, rdf_param_grid),
         # ("Log Regression", logreg_clsf, logreg_param_grid),
-        ("SVM", svm_clsf, svm_param_grid)
+        # ("SVM", svm_clsf, svm_param_grid)
     ]
 
     results = []
