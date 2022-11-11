@@ -122,7 +122,7 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
             'C': [1, 10, 100, 1000],
             #'kernel': ['poly', 'rbf', 'sigmoid'],
             'kernel': ['rbf'],
-            'kernel': ['sigmoid'],
+            #'kernel': ['sigmoid'],
             #'degree': [3, 4],
             #'gamma': [0.01, 0.001, 0.0001],
             'gamma': [0.01, 0.001, 0.0001],
