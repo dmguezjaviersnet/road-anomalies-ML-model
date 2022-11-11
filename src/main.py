@@ -15,7 +15,7 @@ import pandas as pd
 
 def main():
     create_req_dirs()
-    marks_dfs = marks_json_to_df(f"{marks_dir}")
+    marks_json_to_df(f"{marks_dir}")
     time_seriess_df = json_samples_to_df(f"{samples_dir}")
     
     time_seriess_df_w_nf = [add_features(elem) for elem in time_seriess_df]

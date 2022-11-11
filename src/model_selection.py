@@ -1,4 +1,4 @@
-from sklearn import metrics
+from sklearn.metrics import f1_score, make_scorer
 # from sklearn.utils import resample
 # from sklearn.experimental import enable_halving_search_cv
 from sklearn.preprocessing import StandardScaler
@@ -77,10 +77,11 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
 
     rdf_param_grid = [
         {
-            'n_estimators': [100, 120, 140, 160, 180],
+            # 'n_estimators': [100, 120, 140, 160, 180],
+            'n_estimators': [100, 140, 180],
             'criterion': ['gini', 'entropy'],
-            'max_depth': [3, 4, 5, 6],
-            'max_features': ['sqrt', 'log2', None]
+            'max_depth': [3, 6, 9],
+            'max_features': ['sqrt', 'log2']
         }
     ]
 
@@ -107,20 +108,19 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
     ]
 
     svm_param_grid = [
-        {
-            #'C': [1, 10, 100, 1000],
-            'C': [1, 100],
-            'kernel': ['linear']
-        },
+        #{
+        #    #'C': [1, 10, 100, 1000],
+        #    'C': [1, 100],
+        #    'kernel': ['linear']
+        #},
 
         {
-            #'C': [1, 10, 100, 1000],
-            'C': [1, 100],
-            #'kernel': ['poly', 'rbf', 'sigmoid'],
-            'kernel': ['rbf'],
-            #'degree': [3, 4, 5, 6],
-            #'gamma': [0.01, 0.001, 0.0001],
-            'gamma': [0.01, 0.0001],
+            'C': [1, 10, 100],
+            'kernel': ['sigmoids', 'rbf'],
+            # 'kernel': ['rbf'],
+            # 'degree': [3, 4],
+            # 'gamma': [0.01, 0.001, 0.0001],
+            'gamma': [0.01, 0.001, 0.0001],
             'probability': [True]
         }
     ]
@@ -132,11 +132,11 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
     svm_clsf = SVC()
 
     clsfrs = [
-                #("KNN", knn_clsf, knn_param_grid),
-                #("Decision Tree", dt_clsf, dt_param_grid),
-                #("Random Forest", rdf_clsf, rdf_param_grid),
-                ("Log Regression", logreg_clsf, logreg_param_grid),
-                #("SVM", svm_clsf, svm_param_grid)
+                ("KNN", knn_clsf, knn_param_grid),
+                # ("Decision Tree", dt_clsf, dt_param_grid),
+                # ("Random Forest", rdf_clsf, rdf_param_grid),
+                # ("Log Regression", logreg_clsf, logreg_param_grid),
+                # ("SVM", svm_clsf, svm_param_grid)
     ]
 
     results = []
@@ -169,36 +169,15 @@ def train_with_cv(clsf, param_grid, X_train: pd.DataFrame, y_train: list[int]):
     Returns
     ----------------
 
-    The mean f1 score(accuracy) and standard deviation. 
+    A dataframe with the Grid Search results.
 
     '''
 
+    f1_scorer = make_scorer(f1_score)
     cross_validator = RepeatedStratifiedKFold(n_splits=5, n_repeats=30, random_state=121)
-    hyp_estm_cv = GridSearchCV(estimator=clsf, param_grid=param_grid, cv=cross_validator, n_jobs=-1)
+    hyp_estm_cv = GridSearchCV(estimator=clsf, param_grid=param_grid, scoring=f1_scorer, cv=cross_validator, n_jobs=-1)
     hyp_estm_cv.fit(X_train, y_train)
 
     gsearch_results = pd.DataFrame(hyp_estm_cv.cv_results_)
 
     return remove_split_scores(gsearch_results)
-
-    # fold = 1
-    # f1_scores = []
-    # for train_idx, val_idx in cross_validator.split(X, y):
-    #     X_train = X.loc[train_idx]
-    #     y_train = y.loc[train_idx]
-
-    #     X_val = X.loc[val_idx]
-    #     y_val = y.loc[val_idx]
-
-    #     clsf.fit(X_train, y_train)
-    #     pred = clsf.predict_proba(X_val)[:,1]
-    #     f1_score = metrics.f1_score(y_val, pred)
-    #     print(f"----------------  Fold {fold} --------------------")
-    #     print( f"F1 score in validation set is {f1_score:0.4f}")
-    #     fold += 1
-    #     f1_scores.append(f1_score)
-
-    # ovrall_acc = np.mean(f1_scores)
-    # ovrall_std = np.std(f1_scores)
-    # print(f"Mean F1 score is {ovrall_acc:0.4f}")
-    # print(f"Standard deviation is {ovrall_std:0.4f}")
