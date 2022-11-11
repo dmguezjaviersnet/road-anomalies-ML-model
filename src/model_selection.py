@@ -23,11 +23,10 @@ from sklearn.model_selection import (
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
 from tools import remove_split_scores
 
 
-def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
+def select_model(series_outls: pd.DataFrame, class_vector: list[int]) -> list[tuple[str, pd.DataFrame]]:
     '''
         Train and evaluate several Machine Learning supervised methods to find the one
         that fits the best to this particular time series data-set.
@@ -95,13 +94,13 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
     logreg_param_grid = [
         {
             'penalty': ['l2'],
-            # 'tol': [1e-3, 1e-4, 1e-5, 1e-6],
-            'tol': [1e-3, 1e-5],
-            # 'C': [1, 10, 100, 1000],
-            'C': [1, 100],
+            'tol': [1e-3, 1e-4, 1e-5, 1e-6],
+            #'tol': [1e-3, 1e-5],
+             'C': [1, 10, 100, 1000],
+            #'C': [1, 100],
             'solver': ['lbfgs'],
-            # 'max_iter': [100, 500, 1000]
-            'max_iter': [100, 500]
+            'max_iter': [100, 500, 1000]
+            #'max_iter': [100, 500]
         },
 
         # {
@@ -125,8 +124,8 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
             # 'C': [1, 10, 100, 1000],
             'C': [1, 10, 100, 1000],
             # 'kernel': ['poly', 'rbf', 'sigmoid'],
-            # 'kernel': ['rbf'],
-            'kernel': ['sigmoid'],
+             'kernel': ['rbf'],
+            #'kernel': ['sigmoid'],
             # 'degree': [3, 4],
             # 'gamma': [0.01, 0.001, 0.0001],
             'gamma': [0.01, 0.001, 0.0001],
@@ -142,10 +141,10 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
 
     clsfrs = [
         #("KNN", knn_clsf, knn_param_grid),
-        #("Decision Tree", dt_clsf, dt_param_grid),
+        ("Decision Tree", dt_clsf, dt_param_grid),
         #("Random Forest", rdf_clsf, rdf_param_grid),
         #("Log Regression", logreg_clsf, logreg_param_grid),
-        ("SVM", svm_clsf, svm_param_grid)
+        #("SVM", svm_clsf, svm_param_grid)
     ]
 
     results = []
@@ -153,11 +152,11 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
         print(
             f"-------------------Running model {clsf_name}------------------------")
         if clsf_name == "Log Regression":
-            clsf_gs_results = (clsf_name, train_with_cv(
+            clsf_gs_results = (clsf_name, train_gs_cv(
                 clsf, clsf_param_grid, X_train_scaled, y_train_scaled))
 
         else:
-            clsf_gs_results = (clsf_name, train_with_cv(
+            clsf_gs_results = (clsf_name, train_gs_cv(
                 clsf, clsf_param_grid, X_train, y_train))
 
         results.append(clsf_gs_results)
