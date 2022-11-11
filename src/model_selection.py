@@ -164,8 +164,7 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
 
     return results
 
-
-def train_with_cv(clsf, param_grid, X_train: pd.DataFrame, y_train: list[int]):
+def train_gs_cv(clsf, param_grid, X_train: pd.DataFrame, y_train: list[int]):
     '''
     Train and evaluate the perfomance of a classifier using cross validation with 
     k-fold(RepeatedStratifiedKFold) whilst performing a grid search over a parameter 
