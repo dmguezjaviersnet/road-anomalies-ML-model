@@ -77,10 +77,14 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
 
     rdf_param_grid = [
         {
-            'n_estimators': [100, 120, 140, 160, 180],
-            'criterion': ['gini', 'entropy'],
-            'max_depth': [3, 4, 5, 6],
-            'max_features': ['sqrt', 'log2', None]
+            #'n_estimators': [100, 120, 140, 160, 180],
+            'n_estimators': [100, 120, 150, 240],
+            #'criterion': ['gini', 'entropy'],
+            'criterion': ['entropy', 'gini'],
+            #'max_depth': [3, 4, 5, 6],
+            'max_depth': [20],
+            #'max_features': ['sqrt', 'log2', None]
+            'max_features': ['log2', 'sqrt']
         }
     ]
 
@@ -107,20 +111,21 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
     ]
 
     svm_param_grid = [
-        {
-            #'C': [1, 10, 100, 1000],
-            'C': [1, 100],
-            'kernel': ['linear']
-        },
+        # {
+        #     #'C': [1, 10, 100, 1000],
+        #     'C': [1, 100],
+        #     'kernel': ['linear']
+        # },
 
         {
             #'C': [1, 10, 100, 1000],
-            'C': [1, 100],
+            'C': [1, 10, 100, 1000],
             #'kernel': ['poly', 'rbf', 'sigmoid'],
             'kernel': ['rbf'],
-            #'degree': [3, 4, 5, 6],
+            'kernel': ['sigmoid'],
+            #'degree': [3, 4],
             #'gamma': [0.01, 0.001, 0.0001],
-            'gamma': [0.01, 0.0001],
+            'gamma': [0.01, 0.001, 0.0001],
             'probability': [True]
         }
     ]
@@ -135,8 +140,8 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
                 #("KNN", knn_clsf, knn_param_grid),
                 #("Decision Tree", dt_clsf, dt_param_grid),
                 #("Random Forest", rdf_clsf, rdf_param_grid),
-                ("Log Regression", logreg_clsf, logreg_param_grid),
-                #("SVM", svm_clsf, svm_param_grid)
+                #("Log Regression", logreg_clsf, logreg_param_grid),
+                ("SVM", svm_clsf, svm_param_grid)
     ]
 
     results = []

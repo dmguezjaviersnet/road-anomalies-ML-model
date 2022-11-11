@@ -43,7 +43,7 @@ def main():
                     X = outliers
                     # X['EsBache'] = y
                     # export_df_to_csv(X, f"labeled_outliers")
-                    features_selected_sets = feature_selection(X, y, 3)
+                    features_selected_sets = feature_selection(X, y, 6)
                     print(f"---------------- Features selected with outliers detected using {outl_method_name} ----------------\n")
                     
                     for selector_name, features_selected_set in features_selected_sets:
