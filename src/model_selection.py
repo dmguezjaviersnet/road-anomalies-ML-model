@@ -143,16 +143,16 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
     for clsf_name, clsf, clsf_param_grid in clsfrs:
         print(f"-------------------Running model {clsf_name}------------------------")
         if clsf_name == "Log Regression":
-            clsf_gs_results = (clsf_name, train_with_cv(clsf, clsf_param_grid, X_train_scaled, y_train_scaled))         
+            clsf_gs_results = (clsf_name, train_gs_cv(clsf, clsf_param_grid, X_train_scaled, y_train_scaled))         
 
         else:
-            clsf_gs_results = (clsf_name, train_with_cv(clsf, clsf_param_grid, X_train, y_train))         
+            clsf_gs_results = (clsf_name, train_gs_cv(clsf, clsf_param_grid, X_train, y_train))         
 
         results.append(clsf_gs_results)
 
     return results
 
-def train_with_cv(clsf, param_grid, X_train: pd.DataFrame, y_train: list[int]):
+def train_gs_cv(clsf, param_grid, X_train: pd.DataFrame, y_train: list[int]):
     '''
     Train and evaluate the perfomance of a classifier using cross validation with 
     k-fold(RepeatedStratifiedKFold) whilst performing a grid search over a parameter 
