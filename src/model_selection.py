@@ -16,14 +16,29 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier, plot_tree
+from tools import remove_split_scores
+from sklearn.model_selection import (
+    # TimeSeriesSplit,
+    # KFold,
+    RepeatedStratifiedKFold,
+    # StratifiedKFold,
+    # HalvingGridSearchCV,
+    GridSearchCV,
+    # GroupKFold,
+    # StratifiedGroupKFold,
+    train_test_split,
+    # cross_val_score
+)
 
+import pandas as pd
+import matplotlib.pyplot as plt
 from tools import remove_split_scores
 
 
-def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
-    """
-    Train and evaluate several Machine Learning supervised methods to find the one
-    that fits the best to this particular time series data-set.
+def select_model(series_outls: pd.DataFrame, class_vector: list[int]) -> list[tuple[str, pd.DataFrame]]:
+    '''
+        Train and evaluate several Machine Learning supervised methods to find the one
+        that fits the best to this particular time series data-set.
 
     Parameters
     -----------------
@@ -37,7 +52,7 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
     A list of tuples with the name of the classifier and the corresponding grdi
     search results pandas dataframe.
 
-    """
+    '''
 
     scaler = StandardScaler()
     series_outls_scaled = pd.DataFrame(
@@ -89,14 +104,14 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
 
     logreg_param_grid = [
         {
-            "penalty": ["l2"],
-            # 'tol': [1e-3, 1e-4, 1e-5, 1e-6],
-            "tol": [1e-3, 1e-5],
-            # 'C': [1, 10, 100, 1000],
-            "C": [1, 100],
-            "solver": ["lbfgs"],
-            # 'max_iter': [100, 500, 1000]
-            "max_iter": [100, 500],
+            'penalty': ['l2'],
+            'tol': [1e-3, 1e-4, 1e-5, 1e-6],
+            #'tol': [1e-3, 1e-5],
+             'C': [1, 10, 100, 1000],
+            #'C': [1, 100],
+            'solver': ['lbfgs'],
+            'max_iter': [100, 500, 1000]
+            #'max_iter': [100, 500]
         },
         # {
         #     'penalty': ['l1'],
@@ -118,8 +133,8 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]):
             # 'C': [1, 10, 100, 1000],
             "C": [1, 10, 100, 1000],
             # 'kernel': ['poly', 'rbf', 'sigmoid'],
-            # 'kernel': ['rbf'],
-            "kernel": ["sigmoid"],
+             'kernel': ['rbf'],
+            #'kernel': ['sigmoid'],
             # 'degree': [3, 4],
             # 'gamma': [0.01, 0.001, 0.0001],
             "gamma": [0.01, 0.001, 0.0001],
