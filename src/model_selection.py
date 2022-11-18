@@ -111,11 +111,11 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]) -> list[tu
     rdf_param_grid = [
         {
             # 'n_estimators': [100, 120, 140, 160, 180],
-            "n_estimators": [100, 120, 150, 240],
+            "n_estimators": [100, 120, 150],
             # 'criterion': ['gini', 'entropy'],
             "criterion": ["entropy", "gini"],
             # 'max_depth': [3, 4, 5, 6],
-            "max_depth": [20],
+            "max_depth": [10,  13, 16],
             # 'max_features': ['sqrt', 'log2', None]
             "max_features": ["log2", "sqrt"],
         }
