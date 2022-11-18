@@ -3,6 +3,7 @@ import pandas as pd
 from candt_anmly_heurs import find_candidates_heurs
 from candt_anmly_unspv import find_candidates_unspv
 
+
 def detect_outls(time_series: pd.DataFrame):
     '''
         Detect outliers in a time series using several techniques such as 
@@ -19,14 +20,16 @@ def detect_outls(time_series: pd.DataFrame):
         A list of tuples with method name and corresponding outliers.
 
     '''
+    #heur_candts
+    _, z_thresh_pred, z_diff_pred, g_zero_pred = find_candidates_heurs(
+        time_series)
+    dbscan_pred, optics_pred, ocsvm_pred, score_dbscan, score_optics, score_ocsvm = find_candidates_unspv(time_series)
 
-    heur_candts, z_thresh_pred, z_diff_pred, g_zero_pred = find_candidates_heurs(time_series)
-    dbscan_pred, optics_pred, ocsvm_pred = find_candidates_unspv(time_series)
+    predictions = {"z_thresh": z_thresh_pred, "z_diff": z_diff_pred, "g_zero": g_zero_pred,
+                   "dbscan": dbscan_pred, "optics": optics_pred, "ocsvm": ocsvm_pred}
 
-    predictions = [("z_thresh", z_thresh_pred), ("z_diff", z_diff_pred), ("g_zero", g_zero_pred),
-                    ("dbscan", dbscan_pred), ("optics", optics_pred), ("ocsvm", ocsvm_pred)]
+    return predictions, score_dbscan, score_optics, score_ocsvm
 
-    return predictions
 
 def filter_outliers(time_series: pd.DataFrame, predictions: list) -> pd.DataFrame:
     '''

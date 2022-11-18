@@ -29,8 +29,12 @@ def find_candidates_unspv(time_series: pd.DataFrame) -> tuple:
     y_pred_optics = OPTICS(min_samples=3).fit_predict(values)
     y_pred_ocsvm = OneClassSVM(kernel="rbf", gamma="scale").fit_predict(values)
 
-    print('Mean Silhouette score DBSCAN: {}'.format(metrics.silhouette_score(values, y_pred_dbscan)))
-    print('Mean Silhouette score OPTICS: {}'.format(metrics.silhouette_score(values, y_pred_optics)))
-    print('Mean Silhouette score OneClassSVM: {}'.format(metrics.silhouette_score(values, y_pred_ocsvm)))
+    # Silhouette Metric
+    score_dbscan = metrics.silhouette_score(values, y_pred_dbscan)
+    score_optics = metrics.silhouette_score(values, y_pred_optics)
+    score_ocsvm = metrics.silhouette_score(values, y_pred_ocsvm)
+    print('Silhouette score DBSCAN: {}'.format(score_dbscan))
+    print('Silhouette score OPTICS: {}'.format(score_optics))
+    print('Silhouette score OneClassSVM: {}'.format(score_ocsvm))
 
-    return y_pred_dbscan, y_pred_optics, y_pred_ocsvm
+    return y_pred_dbscan, y_pred_optics, y_pred_ocsvm, score_dbscan, score_optics, score_ocsvm
