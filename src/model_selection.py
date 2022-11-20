@@ -4,6 +4,7 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score, make_scorer
+from sklearn.metrics import precision_score, recall_score, accuracy_score, confusion_matrix
 from sklearn.model_selection import (  # TimeSeriesSplit,; KFold,; StratifiedKFold,; HalvingGridSearchCV,; GroupKFold,; StratifiedGroupKFold,; cross_val_score
     GridSearchCV,
     RepeatedStratifiedKFold,
@@ -35,6 +36,24 @@ import matplotlib.pyplot as plt
 from tools import remove_split_scores
 
 
+def print_confusion_matrix(y_test, y_pred):
+
+    # Calculate the confusion matrix
+    conf_matrix = confusion_matrix(y_true=y_test, y_pred=y_pred)
+    # Print the confusion matrix using Matplotlib
+    fig, ax = plt.subplots(figsize=(5, 5))
+    ax.matshow(conf_matrix, cmap=plt.cm.Oranges, alpha=0.3)
+    for i in range(conf_matrix.shape[0]):
+        for j in range(conf_matrix.shape[1]):
+            ax.text(x=j, y=i, s=conf_matrix[i, j],
+                    va='center', ha='center', size='xx-large')
+
+    plt.xlabel('Predictions', fontsize=18)
+    plt.ylabel('Actuals', fontsize=18)
+    plt.title('Confusion Matrix', fontsize=18)
+    plt.show()
+
+
 def select_model(series_outls: pd.DataFrame, class_vector: list[int]) -> list[tuple[str, pd.DataFrame]]:
     '''
         Train and evaluate several Machine Learning supervised methods to find the one
@@ -60,10 +79,10 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]) -> list[tu
     )
 
     X_train_scaled, X_test_scaled, y_train_scaled, y_test_scaled = train_test_split(
-        series_outls_scaled, class_vector, train_size=0.6
+        series_outls_scaled, class_vector, train_size=0.7
     )
     X_train, X_test, y_train, y_test = train_test_split(
-        series_outls, class_vector, train_size=0.6
+        series_outls, class_vector, train_size=0.7
     )
 
     knn_param_grid = [
@@ -106,12 +125,12 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]) -> list[tu
         {
             'penalty': ['l2'],
             'tol': [1e-3, 1e-4, 1e-5, 1e-6],
-            #'tol': [1e-3, 1e-5],
-             'C': [1, 10, 100, 1000],
-            #'C': [1, 100],
+            # 'tol': [1e-3, 1e-5],
+            'C': [1, 10, 100, 1000],
+            # 'C': [1, 100],
             'solver': ['lbfgs'],
             'max_iter': [100, 500, 1000]
-            #'max_iter': [100, 500]
+            # 'max_iter': [100, 500]
         },
         # {
         #     'penalty': ['l1'],
@@ -131,13 +150,14 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]) -> list[tu
         # },
         {
             # 'C': [1, 10, 100, 1000],
-            "C": [1, 10, 100, 1000],
+            # "C": [1, 10, 100, 1000],
+            "C": [100],
             # 'kernel': ['poly', 'rbf', 'sigmoid'],
-             'kernel': ['rbf'],
-            #'kernel': ['sigmoid'],
+            # 'kernel': ['rbf', 'sigmoid'],
+            'kernel': ['rbf'],
             # 'degree': [3, 4],
             # 'gamma': [0.01, 0.001, 0.0001],
-            "gamma": [0.01, 0.001, 0.0001],
+            "gamma": [0.01, 0.001],
             "probability": [True],
         }
     ]
@@ -150,25 +170,50 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]) -> list[tu
 
     clsfrs = [
         ("KNN", knn_clsf, knn_param_grid),
-        # ("Decision Tree", dt_clsf, dt_param_grid),
-        # ("Random Forest", rdf_clsf, rdf_param_grid),
-        # ("Log Regression", logreg_clsf, logreg_param_grid),
-        # ("SVM", svm_clsf, svm_param_grid)
+        #("Decision Tree", dt_clsf, dt_param_grid),
+        #("Random Forest", rdf_clsf, rdf_param_grid),
+        #("Log Regression", logreg_clsf, logreg_param_grid),
+        #("SVM", svm_clsf, svm_param_grid)
     ]
 
     results = []
     for clsf_name, clsf, clsf_param_grid in clsfrs:
-        print(f"-------------------Running model {clsf_name}------------------------")
+        print(
+            f"-------------------Running model {clsf_name}------------------------")
         if clsf_name == "Log Regression":
+            r_table, best_m = train_gs_cv(
+                clsf, clsf_param_grid, X_train_scaled, y_train_scaled)
+            y_pred = best_m.predict(X_test_scaled)
+            best_m_precision_score = precision_score(y_test_scaled, y_pred)
+            best_m_accuracy_score = accuracy_score(y_test_scaled, y_pred)
+            best_m_f1_score = f1_score(y_test_scaled, y_pred)
+            print_confusion_matrix()
+            print("----------------------------------------------------")
+            print("--------------Test-Results-------------------------------")
+            print("Precision: %.3f" % best_m_precision_score)
+            print("Accuracy: %.3f" % best_m_accuracy_score)
+            print("F1: %.3f" % best_m_f1_score)
+
             clsf_gs_results = (
                 clsf_name,
-                train_gs_cv(clsf, clsf_param_grid, X_train_scaled, y_train_scaled),
+                r_table,
             )
 
         else:
+            r_table, best_m = train_gs_cv(
+                clsf, clsf_param_grid, X_train, y_train)
+            y_pred = best_m.predict(X_test)
+            best_m_precision_score = precision_score(y_test, y_pred)
+            best_m_accuracy_score = accuracy_score(y_test, y_pred)
+            best_m_f1_score = f1_score(y_test, y_pred)
+            print("----------------------------------------------------")
+            print("--------------Test-Results-------------------------------")
+            print("Precision: %.3f" % best_m_precision_score)
+            print("Accuracy: %.3f" % best_m_accuracy_score)
+            print("F1: %.3f" % best_m_f1_score)
             clsf_gs_results = (
                 clsf_name,
-                train_gs_cv(clsf, clsf_param_grid, X_train, y_train),
+                r_table
             )
 
         results.append(clsf_gs_results)
@@ -206,12 +251,17 @@ def train_gs_cv(clsf, param_grid, X_train: pd.DataFrame, y_train: list[int]):
         param_grid=param_grid,
         scoring=f1_scorer,
         cv=cross_validator,
-        n_jobs=-1,
+        n_jobs=4,
+        refit=True,
     )
+
     hyp_estm_cv.fit(X_train, y_train)
 
+    best_model = hyp_estm_cv.best_estimator_
+    best_hyp_params = hyp_estm_cv.best_params_
 
     gsearch_results = pd.DataFrame(hyp_estm_cv.cv_results_)
-    gsearch_results = gsearch_results.sort_values(by="mean_test_score", ascending=False)
+    gsearch_results = gsearch_results.sort_values(
+        by="mean_test_score", ascending=False)
 
-    return remove_split_scores(gsearch_results)
+    return remove_split_scores(gsearch_results), hyp_estm_cv
