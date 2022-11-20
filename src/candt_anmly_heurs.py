@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
+from tools import z_thresh_threshold, z_diff_threshold, g_zero_threshold
 
-def g_zero(window: pd.DataFrame, threshold=0.5) -> tuple[bool, np.ndarray]:
+def g_zero(window: pd.DataFrame, threshold=g_zero_threshold) -> tuple[bool, np.ndarray]:
     '''
         Threshold-based heuristic to determine the presence of
         an anomaly on the road using accelerometer readings from
@@ -29,7 +30,7 @@ def g_zero(window: pd.DataFrame, threshold=0.5) -> tuple[bool, np.ndarray]:
     return anmly_prsnce, np.array(anmlies)
 
 
-def z_thresh(window: pd.DataFrame, threshold=12) -> tuple[bool, np.ndarray]:
+def z_thresh(window: pd.DataFrame, threshold=z_thresh_threshold) -> tuple[bool, np.ndarray]:
     '''
         Threshold-based heuristic to determine the presence of an anomaly on the road
         using accelerometer reading from the z axis.
@@ -55,7 +56,7 @@ def z_thresh(window: pd.DataFrame, threshold=12) -> tuple[bool, np.ndarray]:
     
     return anmly_prsnce, np.array(anmlies)
 
-def z_diff(window: pd.DataFrame, threshold=10) -> tuple[bool, np.ndarray]:
+def z_diff(window: pd.DataFrame, threshold=z_diff_threshold) -> tuple[bool, np.ndarray]:
     '''
         Threshold-based heuristic to determine the presence of an anomaly on the road
         using two consecutive accelerometer readings from the z axis
@@ -121,7 +122,7 @@ def find_candidates_heurs(window: pd.DataFrame) -> tuple[list[bool], np.ndarray,
     candidates = [False]*4
     anmly = False
 
-    anmly, z_thresh_anmlies = z_thresh(window, 15)
+    anmly, z_thresh_anmlies = z_thresh(window)
     if anmly: candidates[0] = True
 
     anmly, z_diff_anmlies = z_diff(window)

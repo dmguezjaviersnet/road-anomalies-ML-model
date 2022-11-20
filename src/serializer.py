@@ -35,7 +35,7 @@ def make_pickle_file(file_name, data) -> None:
         pickle.dump(data, outfile)
 
 
-def deserialize_data(file_name) -> None:
+def deserialize_data(file_name: str):
     '''
         Deserialize pickle file into an object.
 
@@ -51,7 +51,7 @@ def deserialize_data(file_name) -> None:
         return data
 
 
-def unpick_pickle_file(file_name) -> None:
+def unpick_pickle_file(file_name: str):
     '''
         Get data from pickle file.
 

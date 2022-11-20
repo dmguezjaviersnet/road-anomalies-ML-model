@@ -3,16 +3,29 @@ import os
 from pathlib import Path
 from os.path import exists
 import pandas as pd
-
+import uuid
 # //\\//  -------------------- Required directories for the data ----------------------- //\\\// #
 data_dir = Path("./data")
 csvs_dir = Path("./data/csvs")
 marks_dir = Path("./data/marks")
 samples_dir = Path("./data/samples")
+serialized_preproce_data_dir = Path("./serialized_data")
 proc_samples_dir = Path("./data/csvs/proc_samples") 
 marks_google_dir = Path("./data/csvs/marks")
 test_csvs_dir = Path("./data/grid-search-results")
 best_configs_dir = Path("./data/best-configs")
+features_count_dir = Path("./data/feature-selected-count")
+images_dir = Path("./data/images")
+
+
+# Earth Gravity: 9.807 m/s²
+g_e = 9.807
+# Threshold fofr Z-THRESH HEURISTIC
+z_thresh_threshold = round(11, 6)
+# Threshold for Z-DIFF HEURISTIC
+z_diff_threshold = round(6, 6)
+# Threshold for G-ZERO HEURISTIC
+g_zero_threshold = round(0.8*g_e, 6)
 
 def create_req_dirs() -> None:
     '''
@@ -21,7 +34,8 @@ def create_req_dirs() -> None:
     '''
 
 
-    required_dirs = [data_dir, csvs_dir, marks_dir, samples_dir, proc_samples_dir, marks_google_dir, test_csvs_dir, best_configs_dir]
+    required_dirs = [data_dir, csvs_dir, marks_dir, samples_dir, proc_samples_dir, 
+    marks_google_dir, test_csvs_dir, best_configs_dir, features_count_dir, serialized_preproce_data_dir, images_dir]
     
     for req_dir in required_dirs:
         if not exists(req_dir):
@@ -109,7 +123,22 @@ def save_to_json(new_data: dict, filename: str) -> None:
         with open(filename, 'w') as file:
             json.dump({"configs": [new_data]}, file, indent = 4)
 
+def generate_unique_id_matrix(model: str):
+    '''
+        Generate a unique id for each model.
 
+        Parameters
+        ----------------
+
+        model: Model to generate a unique id for.
+
+        Returns
+        ----------------
+
+        Unique id for the model.
+
+    '''
+    return f"{uuid.uuid1()}-{model}"
 
 
     

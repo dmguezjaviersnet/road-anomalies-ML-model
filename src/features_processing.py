@@ -11,9 +11,61 @@ from sklearn.feature_selection import (
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.preprocessing import StandardScaler
-
+from os.path import exists
+from tools import features_count_dir
 import pandas as pd
 
+def make_init_df_features_count():
+    '''
+        Generate a data frame with the features count for each class.
+        This data frame is updated with new feature selected for feature selection
+    '''
+    df = pd.DataFrame({
+        'X Accel': [0],
+        'Y Accel': [0],
+        'Z Accel': [0],
+        'X Gyro': [0],
+        'Y Gyro': [0],
+        'Z Gyro': [0],
+        'Speed': [0],
+        'X / Z': [0],
+        'MaxZratio': [0],
+        'MinZratio': [0],
+        'SpeedvsZ': [0],
+        'MeanDevAccelX': [0],
+        'MedianDevAccelX': [0],
+        'MeanDevAccelY': [0],
+        'MedianDevAccelY': [0],
+        'MeanDevAccelZ': [0],
+        'MedianDevAccelZ': [0],
+        'MeanDevGyroX': [0],
+        'MedianDevGyroX': [0],
+        'MeanDevGyroY': [0],
+        'MedianDevGyroY': [0],
+        'MeanDevGyroZ': [0],
+        'MedianDevGyroZ': [0]
+    },
+        index=['Count']
+    )
+    print(df)
+    return df
+
+def load_feature_df_count() -> pd.DataFrame:
+    '''
+        Load the features count table from a csv file.
+    '''
+    f_name = 'features_count'
+    if not exists(f"{features_count_dir}/{f_name}.csv"):
+        df = make_init_df_features_count()
+        df.to_csv(f"{features_count_dir}/{f_name}.csv", index=False)
+        return df
+    else:
+        return pd.read_csv(f"{features_count_dir}/{f_name}.csv")
+
+def update_csv_feature_df_count(new_df: pd.DataFrame):
+    f_name = 'features_count'
+    new_df.to_csv(f"{features_count_dir}/{f_name}.csv", index=False)
+   
 def add_features(ndt: NamedDataframe) -> NamedDataframe:
     '''
         Generate some extra features for the dataset to improve the 
@@ -39,11 +91,14 @@ def add_features(ndt: NamedDataframe) -> NamedDataframe:
 
     # Statistic featurers
     dt['MeanDevAccelX'] = abs(dt['X Accel'] - statistics.mean(dt['X Accel']))
-    dt['MedianDevAccelX'] = abs(dt['X Accel'] - statistics.median(dt['X Accel']))
+    dt['MedianDevAccelX'] = abs(
+        dt['X Accel'] - statistics.median(dt['X Accel']))
     dt['MeanDevAccelY'] = abs(dt['Y Accel'] - statistics.mean(dt['Y Accel']))
-    dt['MedianDevAccelY'] = abs(dt['Y Accel'] - statistics.median(dt['Y Accel']))
+    dt['MedianDevAccelY'] = abs(
+        dt['Y Accel'] - statistics.median(dt['Y Accel']))
     dt['MeanDevAccelZ'] = abs(dt['Z Accel'] - statistics.mean(dt['Z Accel']))
-    dt['MedianDevAccelZ'] = abs(dt['Z Accel'] - statistics.median(dt['Z Accel']))
+    dt['MedianDevAccelZ'] = abs(
+        dt['Z Accel'] - statistics.median(dt['Z Accel']))
     dt['MeanDevGyroX'] = abs(dt['X Gyro'] - statistics.mean(dt['X Gyro']))
     dt['MedianDevGyroX'] = abs(dt['X Gyro'] - statistics.median(dt['X Gyro']))
     dt['MeanDevGyroY'] = abs(dt['Y Gyro'] - statistics.mean(dt['Y Gyro']))
@@ -51,6 +106,7 @@ def add_features(ndt: NamedDataframe) -> NamedDataframe:
     dt['MeanDevGyroZ'] = abs(dt['Z Gyro'] - statistics.mean(dt['Z Gyro']))
     dt['MedianDevGyroZ'] = abs(dt['Z Gyro'] - statistics.median(dt['Z Gyro']))
     return NamedDataframe(dt, ndt.id)
+
 
 def feature_selection(X: pd.DataFrame, y: list[int], features_to_select: int):
     '''
@@ -77,11 +133,15 @@ def feature_selection(X: pd.DataFrame, y: list[int], features_to_select: int):
 
     clsf = ExtraTreesClassifier(n_estimators=50, n_jobs=-1)
     lrc = LogisticRegression()
-    sfs_selector = SequentialFeatureSelector(estimator=clsf, n_features_to_select=features_to_select, direction='forward', n_jobs=-1)
-    sbs_selector = SequentialFeatureSelector(estimator=clsf, n_features_to_select=features_to_select, direction='backward', n_jobs=-1)
+    sfs_selector = SequentialFeatureSelector(
+        estimator=clsf, n_features_to_select=features_to_select, direction='forward', n_jobs=-1)
+    sbs_selector = SequentialFeatureSelector(
+        estimator=clsf, n_features_to_select=features_to_select, direction='backward', n_jobs=-1)
     rfe_selector = RFE(estimator=clsf, n_features_to_select=features_to_select)
-    rfe_cv_selector = RFECV(estimator=clsf, min_features_to_select=features_to_select, n_jobs=-1)
-    sfm_selector = SelectFromModel(estimator=clsf, max_features=features_to_select)
+    rfe_cv_selector = RFECV(
+        estimator=clsf, min_features_to_select=features_to_select, n_jobs=-1)
+    sfm_selector = SelectFromModel(
+        estimator=clsf, max_features=features_to_select)
 
     feature_selectors = [
         ('forward_selection', sfs_selector),
@@ -112,7 +172,7 @@ def feature_selection(X: pd.DataFrame, y: list[int], features_to_select: int):
         else:
             features = []
             for elem in X.columns[selector.get_support()]:
-                features.append(elem) 
+                features.append(elem)
             result.append((selector_name, features))
 
     # for cv_selector_name, cv_selector in cv_feature_selectors:
@@ -121,6 +181,8 @@ def feature_selection(X: pd.DataFrame, y: list[int], features_to_select: int):
 
     return result
 
+
 def remove_noise_features(time_series: pd.DataFrame):
-    time_series = time_series.drop(['Latitude', 'Longitude', 'Accuracy'], axis=1)
+    time_series = time_series.drop(
+        ['Latitude', 'Longitude', 'Accuracy', 'Speed'], axis=1)
     return time_series

@@ -78,10 +78,10 @@ def json_samples_to_df(path: str) -> list[NamedDataframe]:
 
                 # ///\\// ------ Delete all readings with less than 10m of accuracy -------- //\\//
                 indexNames = proc_df[(proc_df['Accuracy'] > 10)].index
+                
                 proc_df.drop(indexNames, inplace=True)
-
+                proc_df['Speed'] = round(proc_df['Speed'], 6)
                 proc_df.to_csv(f"{proc_samples_dir}/{f_name}.csv", index=False)
-
                 named_df = NamedDataframe(proc_df, f_name)
                 named_dfs.append(named_df)
 

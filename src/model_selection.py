@@ -33,14 +33,20 @@ from sklearn.model_selection import (
 
 import pandas as pd
 import matplotlib.pyplot as plt
-from tools import remove_split_scores
+from tools import remove_split_scores, images_dir
 
 
-def print_confusion_matrix(y_test, y_pred):
-
-    # Calculate the confusion matrix
-    conf_matrix = confusion_matrix(y_true=y_test, y_pred=y_pred)
+def print_confusion_matrix(conf_matrix):
     # Print the confusion matrix using Matplotlib
+    plt = get_plot_confusion_matrix(conf_matrix)
+    plt.show()
+
+
+def export_confusion_matrix(confusion_matrix, filename):
+    plt = get_plot_confusion_matrix(confusion_matrix)
+    plt.savefig(f"{images_dir}/{filename}.png")
+
+def get_plot_confusion_matrix(conf_matrix):
     fig, ax = plt.subplots(figsize=(5, 5))
     ax.matshow(conf_matrix, cmap=plt.cm.Oranges, alpha=0.3)
     for i in range(conf_matrix.shape[0]):
@@ -51,10 +57,13 @@ def print_confusion_matrix(y_test, y_pred):
     plt.xlabel('Predictions', fontsize=18)
     plt.ylabel('Actuals', fontsize=18)
     plt.title('Confusion Matrix', fontsize=18)
-    plt.show()
+    return plt
+def get_confusion_matrix(y_test, y_pred):
+    # Calculate the confusion matrix
+    conf_matrix = confusion_matrix(y_true=y_test, y_pred=y_pred)
+    return conf_matrix
 
-
-def select_model(series_outls: pd.DataFrame, class_vector: list[int]) -> list[tuple[str, pd.DataFrame]]:
+def select_model(series_outls: pd.DataFrame, class_vector: list[int], scaled:bool=False) -> list[tuple[str, pd.DataFrame]]:
     '''
         Train and evaluate several Machine Learning supervised methods to find the one
         that fits the best to this particular time series data-set.
@@ -111,11 +120,11 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]) -> list[tu
     rdf_param_grid = [
         {
             # 'n_estimators': [100, 120, 140, 160, 180],
-            "n_estimators": [100, 120, 150],
+            "n_estimators": [100, 120, 180],
             # 'criterion': ['gini', 'entropy'],
             "criterion": ["entropy", "gini"],
             # 'max_depth': [3, 4, 5, 6],
-            "max_depth": [10,  13, 16],
+            "max_depth": [10,  13, 16, 20],
             # 'max_features': ['sqrt', 'log2', None]
             "max_features": ["log2", "sqrt"],
         }
@@ -169,9 +178,9 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]) -> list[tu
     svm_clsf = SVC()
 
     clsfrs = [
-        ("KNN", knn_clsf, knn_param_grid),
+        ##("KNN", knn_clsf, knn_param_grid),
         #("Decision Tree", dt_clsf, dt_param_grid),
-        #("Random Forest", rdf_clsf, rdf_param_grid),
+        ("Random Forest", rdf_clsf, rdf_param_grid),
         #("Log Regression", logreg_clsf, logreg_param_grid),
         #("SVM", svm_clsf, svm_param_grid)
     ]
@@ -185,35 +194,50 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]) -> list[tu
                 clsf, clsf_param_grid, X_train_scaled, y_train_scaled)
             y_pred = best_m.predict(X_test_scaled)
             best_m_precision_score = precision_score(y_test_scaled, y_pred)
+            best_m_recall_score = recall_score(y_test_scaled, y_pred)
             best_m_accuracy_score = accuracy_score(y_test_scaled, y_pred)
             best_m_f1_score = f1_score(y_test_scaled, y_pred)
-            print_confusion_matrix()
+            confusion_matrix_test = get_confusion_matrix(y_train_scaled, y_pred)
             print("----------------------------------------------------")
             print("--------------Test-Results-------------------------------")
             print("Precision: %.3f" % best_m_precision_score)
             print("Accuracy: %.3f" % best_m_accuracy_score)
             print("F1: %.3f" % best_m_f1_score)
+            print("Recall: %.3f" % best_m_recall_score)
 
             clsf_gs_results = (
                 clsf_name,
                 r_table,
+                best_m_precision_score,
+                best_m_recall_score,
+                best_m_accuracy_score,
+                best_m_f1_score,
+                confusion_matrix_test
             )
 
         else:
             r_table, best_m = train_gs_cv(
-                clsf, clsf_param_grid, X_train, y_train)
-            y_pred = best_m.predict(X_test)
-            best_m_precision_score = precision_score(y_test, y_pred)
-            best_m_accuracy_score = accuracy_score(y_test, y_pred)
-            best_m_f1_score = f1_score(y_test, y_pred)
+                clsf, clsf_param_grid, X_train_scaled if scaled else X_train, y_train_scaled if scaled else y_train)
+            y_pred = best_m.predict(X_test_scaled if scaled else X_test)
+            best_m_precision_score = precision_score(y_test_scaled if scaled else y_test, y_pred)
+            best_m_recall_score = recall_score(y_test_scaled if scaled else y_test, y_pred)
+            best_m_accuracy_score = accuracy_score(y_test_scaled if scaled else y_test, y_pred)
+            best_m_f1_score = f1_score(y_test_scaled if scaled else y_test, y_pred)
+            confusion_matrix_test = get_confusion_matrix(y_test_scaled if scaled else y_test, y_pred)
             print("----------------------------------------------------")
             print("--------------Test-Results-------------------------------")
             print("Precision: %.3f" % best_m_precision_score)
             print("Accuracy: %.3f" % best_m_accuracy_score)
             print("F1: %.3f" % best_m_f1_score)
+            print("Recall: %.3f" % best_m_recall_score)
             clsf_gs_results = (
                 clsf_name,
-                r_table
+                r_table,
+                best_m_precision_score,
+                best_m_recall_score,
+                best_m_accuracy_score,
+                best_m_f1_score,
+                confusion_matrix_test
             )
 
         results.append(clsf_gs_results)
