@@ -14,7 +14,6 @@ import pandas as pd
 
 
 def main():
-
     create_req_dirs()
     marks_json_to_df(f"{marks_dir}")
     time_seriess_df = json_samples_to_df(f"{samples_dir}")
@@ -25,6 +24,7 @@ def main():
     mean_dbscan_score = 0
     mean_optics_score = 0
     mean_ocsvm_score =  0 
+
     outliers_df: dict[str, tuple[pd.DataFrame, list]] = {
         "z_thresh": (pd.DataFrame(), []),
         "z_diff": (pd.DataFrame(), []),
@@ -40,16 +40,12 @@ def main():
         mean_ocsvm_score  += score_ocsvm
         mean_optics_score += score_optics
         # outl_methods_sel = [elem for elem in predictions if elem[0] == "z_thresh" or elem[0] == "dbscan"]
-
         
         for outl_method_name in predictions.keys():
-
             outliers = filter_outliers(
                 elem.series, predictions[outl_method_name])
-
             # if there is any outliers
             if len(outliers):
-
                 # export_df_to_csv(outliers, f"{elem.id}_outliers")
                 y = label_outls(outliers, elem.id, 10)
                 if (not all(data_label == 0 for data_label in y) and
@@ -75,7 +71,6 @@ def main():
         output_csv_idx = 1
         X, y = outliers_df[outl_method_name]
         if len(X):
-        
              # X['EsBache'] = y
              # export_df_to_csv(X, f"labeled_outliers")
             features_selected_sets = feature_selection(X, y, 6)
