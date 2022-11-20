@@ -149,9 +149,9 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int]) -> list[tu
     svm_clsf = SVC()
 
     clsfrs = [
-        # ("KNN", knn_clsf, knn_param_grid),
+        ("KNN", knn_clsf, knn_param_grid),
         # ("Decision Tree", dt_clsf, dt_param_grid),
-        ("Random Forest", rdf_clsf, rdf_param_grid),
+        # ("Random Forest", rdf_clsf, rdf_param_grid),
         # ("Log Regression", logreg_clsf, logreg_param_grid),
         # ("SVM", svm_clsf, svm_param_grid)
     ]
@@ -209,6 +209,7 @@ def train_gs_cv(clsf, param_grid, X_train: pd.DataFrame, y_train: list[int]):
         n_jobs=-1,
     )
     hyp_estm_cv.fit(X_train, y_train)
+
 
     gsearch_results = pd.DataFrame(hyp_estm_cv.cv_results_)
     gsearch_results = gsearch_results.sort_values(by="mean_test_score", ascending=False)
