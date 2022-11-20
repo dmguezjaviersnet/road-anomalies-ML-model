@@ -16,7 +16,6 @@ from serializer import serialize_data, deserialize_data
 from tools import generate_unique_id_matrix, images_dir
 
 def main():
-
     create_req_dirs()
     outliers_df: dict[str, tuple[pd.DataFrame, list]] = {}
     mean_dbscan_score = 0
