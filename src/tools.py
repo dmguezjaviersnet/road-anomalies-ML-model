@@ -28,6 +28,19 @@ g_zero_threshold = round(0.8*g_e, 6)
 
 valid_model_names = ["knn", "dt", "rf", "logr", "svm"]
 
+# ---Best hyperparams confs for clustering algs---
+# DBSCAN 
+best_dbscan_eps: float = 0.99
+best_dbscan_min_samples:int  = 15
+# OCSVM
+best_ocsvm_gamma: float = 1e-05 
+best_ocsvm_nu: float = 0.05
+# OPTICS
+best_optics_min_samples: int = 15
+best_optics_method: str = 'xi'
+best_optics_metric: str = 'canberra'
+
+
 def create_req_dirs() -> None:
     '''
         Create the required directories in case they doesn't exist

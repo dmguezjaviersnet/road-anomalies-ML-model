@@ -101,9 +101,9 @@ def main(args):
     print("Mean Silhouette score OCSVM: {}".format(mean_ocsvm_score))
     print("------------------------------------------------------------------------------------")
 
-    # outliers_df.pop("g_zero")
-    # outliers_df.pop("optics")
-    # best_model_config = {}
+    outliers_df.pop("g_zero")
+    outliers_df.pop("optics")
+    best_model_config = {}
     # for outl_method_name in outliers_df.keys():
     #     output_csv_idx = 1
     #     X, y = outliers_df[outl_method_name]
