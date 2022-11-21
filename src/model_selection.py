@@ -63,7 +63,7 @@ def get_confusion_matrix(y_test, y_pred):
     conf_matrix = confusion_matrix(y_true=y_test, y_pred=y_pred)
     return conf_matrix
 
-def select_model(series_outls: pd.DataFrame, class_vector: list[int], scaled:bool=False) -> list[tuple[str, pd.DataFrame]]:
+def select_model(series_outls: pd.DataFrame, class_vector: list[int], model_name: str, scaled:bool=False) -> list[tuple[str, pd.DataFrame]]:
     '''
         Train and evaluate several Machine Learning supervised methods to find the one
         that fits the best to this particular time series data-set.
@@ -110,7 +110,7 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int], scaled:boo
 
     dt_param_grid = [
         {
-            "criterion": ["entropy"],
+            "criterion": ["entropy", "gini"],
             "splitter": ["best", "random"],
             "max_depth": [3, 4, 5, 6, None],
             "max_features": ["sqrt", "log2", None],
@@ -124,7 +124,7 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int], scaled:boo
             # 'criterion': ['gini', 'entropy'],
             "criterion": ["entropy", "gini"],
             # 'max_depth': [3, 4, 5, 6],
-            "max_depth": [10,  13, 16, 20],
+            "max_depth": [3, 6, 10, 20],
             # 'max_features': ['sqrt', 'log2', None]
             "max_features": ["log2", "sqrt"],
         }
@@ -137,7 +137,7 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int], scaled:boo
             # 'tol': [1e-3, 1e-5],
             'C': [1, 10, 100, 1000],
             # 'C': [1, 100],
-            'solver': ['lbfgs'],
+            'solver': ['lbfgs', 'saga'],
             'max_iter': [100, 500, 1000]
             # 'max_iter': [100, 500]
         },
@@ -177,12 +177,15 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int], scaled:boo
     logreg_clsf = LogisticRegression()
     svm_clsf = SVC()
 
+    model_dict = {
+        "knn": ("KNN", knn_clsf, knn_param_grid),
+        "dt": ("Decision Tree", dt_clsf, dt_param_grid),
+        "rf": ("Random Forest", rdf_clsf, rdf_param_grid),
+        "logr":("Log Regression", logreg_clsf, logreg_param_grid),
+        "svm":("SVM", svm_clsf, svm_param_grid)
+    }
     clsfrs = [
-        ##("KNN", knn_clsf, knn_param_grid),
-        #("Decision Tree", dt_clsf, dt_param_grid),
-        ("Random Forest", rdf_clsf, rdf_param_grid),
-        #("Log Regression", logreg_clsf, logreg_param_grid),
-        #("SVM", svm_clsf, svm_param_grid)
+        model_dict[model_name]
     ]
 
     results = []
