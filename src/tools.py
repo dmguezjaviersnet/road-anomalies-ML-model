@@ -22,9 +22,10 @@ g_e = 9.807
 # Threshold fofr Z-THRESH HEURISTIC
 z_thresh_threshold = round(0.25*g_e + g_e, 6)
 # Threshold for Z-DIFF HEURISTIC
-z_diff_threshold = round(7, 6)
+z_diff_threshold = 4
 # Threshold for G-ZERO HEURISTIC
-g_zero_threshold = round(0.8*g_e, 6)
+# round(0.8*g_e, 6)
+g_zero_threshold = 0.8
 
 valid_model_names = ["knn", "dt", "rf", "logr", "svm"]
 
@@ -38,8 +39,8 @@ best_ocsvm_nu: float = 0.05
 # OPTICS
 best_optics_min_samples: int = 15
 best_optics_method: str = 'xi'
-best_optics_metric: str = 'canberra'
-
+best_optics_metric1: str = 'canberra'
+best_optics_metric2: str = 'braycurtis'
 
 def create_req_dirs() -> None:
     '''
@@ -209,4 +210,43 @@ def print_latex_svm_config()-> str:
 
     return df.to_latex()
 
-print(print_latex_svm_config())
+def print_silhouette_route_results()-> str:
+    df =  pd.DataFrame()
+    df['Ruta'] = ['Ruta1', 'Ruta2', 'Ruta3']
+    df['DBSCAN'] = ['0.502849', '0.659878', '0.620526']
+    df['OCSVM']  = ['0.533472', '0.533707', '0.509438']
+    df['OPTICS'] = ['-0.245268', '-0.271357', '-0.238291']
+    return df.to_latex()
+
+def print_silhouette_mean_results()-> str:
+    df = pd.DataFrame()
+    df['Mean'] = ['0.594417', '0.525539', '-0.251639']
+    df['Algoritmo'] = ['DBSCAN', 'OCSVM', 'OPTICS']
+    return df.to_latex()
+
+def print_dbscan_hparams_conf()-> str:
+    df = pd.DataFrame()
+    df['eps'] = ['0.05, 0.1, 0.15, 0.20, ... 0.90, 0.95, 0.99']
+    df['min_samples'] = ['15, 20, 25, 30, 25, 40,  45, 50, 55, 60, 65']
+    return df.to_latex()
+
+def print_ocsvm_hparams_conf()-> str:
+    df = pd.DataFrame()
+    df['gamma'] = ['scale, 0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10']
+    df['nu'] = ['0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.99']
+    return df.to_latex()
+
+def print_optics_hparams_conf()-> str:
+    df = pd.DataFrame()
+    df['cluster_method'] = ["xi, dbscan"]
+    df['metric'] = ["minkowski, euclidean, canberra, braycurtis"]
+    df['min_samples'] = ['5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65']
+    return df.to_latex()
+
+def print_outliers_detected()-> str:
+    df = pd.DataFrame()
+    df['Algoritmo'] = ['DBSCAN', 'OCSVM', 'z-diff', 'z-tresh']
+    df['Número de Anomalías'] = [134, 446, 7, 95]
+    return df.to_latex()
+
+print(print_outliers_detected())

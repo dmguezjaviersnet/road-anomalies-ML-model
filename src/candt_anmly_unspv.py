@@ -3,13 +3,13 @@ import pandas as pd
 from sklearn import metrics
 from sklearn.cluster import DBSCAN, OPTICS
 from sklearn.svm import OneClassSVM
-from tools import best_dbscan_eps, best_dbscan_min_samples, best_ocsvm_gamma, best_ocsvm_nu, best_optics_min_samples, best_optics_method, best_optics_metric
+from tools import best_dbscan_eps, best_dbscan_min_samples, best_ocsvm_gamma, best_ocsvm_nu, best_optics_min_samples, best_optics_method, best_optics_metric1, best_optics_metric2
 
 # import matplotlib.cm as cm
 # import numpy as np
 # from sklearn.preprocessing import StandardScaler
 
-def find_candidates_unspv(time_series: pd.DataFrame) -> tuple:
+def find_candidates_unspv(time_series: pd.DataFrame, route_name: str) -> tuple:
     '''
         Finds outliers in the time series as potential candidate anomalies using
         several algorithms.
@@ -19,6 +19,7 @@ def find_candidates_unspv(time_series: pd.DataFrame) -> tuple:
 
         time_series: The time series to which apply the outliers detection
         algorithms.
+        route_name: The name of the route to which the time series belongs.
         returns: A tuple consisting of the label(cluster) to which every data point
         belongs according to every algorithm. 
 
@@ -33,7 +34,9 @@ def find_candidates_unspv(time_series: pd.DataFrame) -> tuple:
 
     y_pred_dbscan = DBSCAN(eps=best_dbscan_eps, min_samples=best_dbscan_min_samples).fit_predict(values)
     y_pred_ocsvm = OneClassSVM(kernel="rbf", gamma=best_ocsvm_gamma, nu=best_ocsvm_nu).fit_predict(values)
-    y_pred_optics = OPTICS(min_samples=best_optics_min_samples cluster_method=best_optics_method, metric=best_optics_metric).fit_predict(values)
+    y_pred_optics = OPTICS(min_samples=best_optics_min_samples, cluster_method=best_optics_method, metric=best_optics_metric1).fit_predict(values)
+    if len(y_pred_optics) > 1 and all(elem == y_pred_optics[0] for elem in y_pred_optics):
+        y_pred_optics = OPTICS(min_samples=10, cluster_method=best_optics_method, metric=best_optics_metric2).fit_predict(values)
     # Silhouette Metric
     # best_hparams_dbscan = search_best_dbscan_hparams(values)
     #best_hparams_ocsvm = search_bebst_ocsvm_hparams(values)
@@ -51,10 +54,11 @@ def find_candidates_unspv(time_series: pd.DataFrame) -> tuple:
     score_optics = metrics.silhouette_score(values, y_pred_optics)
     #score_optics = metrics.silhouette_score(values, y_pred_optics)
     #score_ocsvm = metrics.silhouette_score(values, y_pred_ocsvm)
+    print(f"--------------Route: {route_name}--------------------")
     print('Silhouette score DBSCAN: {}'.format(score_dbscan))
     print('Silhouette score OneClassSVM: {}'.format(score_ocsvm))
     print("Silhouette score OPTICS: {}".format(score_optics))
-
+    print(f"-----------------------------------------------------")
     # print("Best eps: {}".format(best_hparams_dbscan['eps']))
     # print("Best min_samples: {}".format(best_hparams_dbscan['min_samples']))
 
@@ -75,7 +79,7 @@ def find_candidates_unspv(time_series: pd.DataFrame) -> tuple:
 
 def search_best_dbscan_hparams(values):
     epsilon_values = [0.05, 0.1, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.5, 0.55, 0.60 , 0.65, 0.70, 0.75,  0.80, 0.85, 0.90, 0.95, 0.99]
-    min_samples_values = [15, 20, 25, 30, 25, 40,  45, 50, 55, 60, 65]
+    min_samples_values = [15, 20, 25, 30, 35, 40,  45, 50, 55, 60, 65]
     best_hparams = {}
     for eps in epsilon_values:
         for min_samples in min_samples_values:

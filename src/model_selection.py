@@ -135,16 +135,17 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int], model_name
             'penalty': ['l2'],
             'tol': [1e-3, 1e-4, 1e-5, 1e-6],
             # 'tol': [1e-3, 1e-5],
-            'C': [1, 10, 100, 1000],
+            'C': [1, 10, 100],
             # 'C': [1, 100],
             'solver': ['lbfgs', 'saga'],
-            'max_iter': [100, 500, 1000]
+            'max_iter': [100, 500, 1000],
+            #'l1_ratio': [0.1, 0.5, 0.9],
             # 'max_iter': [100, 500]
         },
         # {
         #     'penalty': ['l1'],
         #     'tol': [1e-3, 1e-4, 1e-5, 1e-6],
-        #     'C': [1, 10, 100, 1000],
+        #     'C': [1, 10, 100, 100],
         #     'solver': ['saga'],
         #     'max_iter': [100, 500, 1000],
         #     'l1_ratio': [1]
@@ -160,13 +161,13 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int], model_name
         {
             # 'C': [1, 10, 100, 1000],
             # "C": [1, 10, 100, 1000],
-            "C": [100],
+            "C": [1, 10, 50, 100, 1000],
             # 'kernel': ['poly', 'rbf', 'sigmoid'],
             # 'kernel': ['rbf', 'sigmoid'],
             'kernel': ['rbf'],
             # 'degree': [3, 4],
             # 'gamma': [0.01, 0.001, 0.0001],
-            "gamma": [0.01, 0.001],
+            "gamma": [0.1, 0.01, 0.001, 0.0001, 0.00001],
             "probability": [True],
         }
     ]
@@ -200,7 +201,7 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int], model_name
             best_m_recall_score = recall_score(y_test_scaled, y_pred)
             best_m_accuracy_score = accuracy_score(y_test_scaled, y_pred)
             best_m_f1_score = f1_score(y_test_scaled, y_pred)
-            confusion_matrix_test = get_confusion_matrix(y_train_scaled, y_pred)
+            confusion_matrix_test = get_confusion_matrix(y_test_scaled, y_pred)
             print("----------------------------------------------------")
             print("--------------Test-Results-------------------------------")
             print("Precision: %.3f" % best_m_precision_score)
