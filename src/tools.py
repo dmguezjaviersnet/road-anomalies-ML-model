@@ -114,7 +114,7 @@ def remove_split_scores(df: pd.DataFrame) -> pd.DataFrame:
     return df[df.columns.drop(list(df.filter(regex=regex)))]
 
 
-def save_to_json(new_data: dict, filename: str, key: str ="configs") -> None:
+def save_to_json(new_data: dict, filename: str, swap: bool, key: str ="configs") -> None:
     '''
         Save a dataframe to a json file.
 
@@ -132,7 +132,12 @@ def save_to_json(new_data: dict, filename: str, key: str ="configs") -> None:
             # Join new_data with file_data inside configs
             #  If file_data already has key, then append to it
             if key in file_data:
-                file_data[key].append(new_data)
+                if swap:
+                    data_config = file_data[key][0]
+                    if new_data["f1_score_test"] > data_config["f1_score_test"]:
+                        file_data[key] = [new_data]
+                else:
+                    file_data[key].append(new_data)
             else:
             # If file_data doesn't have key, then add it and new_datas
                 file_data[key] = [new_data]
@@ -245,8 +250,8 @@ def print_optics_hparams_conf()-> str:
 
 def print_outliers_detected()-> str:
     df = pd.DataFrame()
-    df['Algoritmo'] = ['DBSCAN', 'OCSVM', 'z-diff', 'z-tresh']
-    df['Número de Anomalías'] = [134, 446, 7, 95]
+    df['Algoritmo'] = ['DBSCAN', 'OCSVM', 'z-diff', 'z-tresh', 'g_zero']
+    df['Número de Anomalías'] = [134, 446, 181, 95, 0]
     return df.to_latex()
 
 print(print_outliers_detected())

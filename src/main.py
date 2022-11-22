@@ -160,17 +160,17 @@ def main(args):
                             best_outl_model = config
                         export_confusion_matrix(confusion_m, matrix_id)
                         save_to_json(
-                            config, f"{best_configs_dir}/{model_selected_name}-results.json")
+                            config, f"{best_configs_dir}/{model_selected_name}-results.json", False)
                         export_df_to_csv(
                             result, f"{model_selected_name}-Results-{output_csv_idx}")
             output_csv_idx += 1
             model_name_best_config = best_outl_model["model"]
-            save_to_json(best_outl_model, f"{best_configs_dir}/{model_name_best_config}-results.json", f"best-{outl_method_name}")
+            save_to_json(best_outl_model, f"{best_configs_dir}/{model_name_best_config}-results.json", True, f"best-{outl_method_name}")
 
 
     best_model_name = best_model_config["model"]
-    save_to_json(best_model_config, f"{best_configs_dir}/{best_model_name}-results.json", "best")
-
+    save_to_json(best_model_config, f"{best_configs_dir}/{best_model_name}-results.json", True, "best")
+    
     print(f"--------Time to complete code {(time.time() - start_time)//60} minutes and {round((time.time() - start_time)%60, 2)} seconds ----" )        
 
 if __name__ == "__main__":
