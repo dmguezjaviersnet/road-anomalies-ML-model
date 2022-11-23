@@ -10,7 +10,7 @@ from outls_plots import outls_scatter
 from outls_detection import detect_outls, filter_outliers
 from windowing_process import build_windows
 from tools import samples_dir, marks_dir, create_req_dirs, save_to_json, best_configs_dir, serialized_preproce_data_dir
-from model_selection import select_model, export_confusion_matrix
+from model_selection import select_model, export_confusion_matrix, buil_train_test_set
 import pandas as pd
 from os.path import exists
 from serializer import serialize_data, deserialize_data
@@ -18,12 +18,18 @@ from tools import generate_unique_id_matrix, images_dir, valid_model_names
 
 
 def main(args):
-    model_input_name = "knn"
+    model_input_name: str = "knn"
+    recompute_data: bool =  False
     if len(args) > 1:
         if args[1] in valid_model_names:
             model_input_name = args[1]
         else:
             raise Exception("Invalid model name")
+    if len(args) > 2:
+        if args[2] == 'true' or args[2] == 'false':
+            recompute_data = True if args[2] == 'true' else False
+        else:
+            raise Exception("Expected boolean value (true or false)")
     
     start_time = time.time()
     create_req_dirs()
@@ -100,6 +106,10 @@ def main(args):
     print("Mean Silhouette score OCSVM: {}".format(mean_ocsvm_score))
     print("Mean Silhouette score OPTICS: {}".format(mean_optics_score))
     print("------------------------------------------------------------------------------------")
+    
+    #compute train and  test set
+
+    
 
     #outliers_df.pop("g_zero")
     outliers_df.pop("optics")
@@ -107,9 +117,18 @@ def main(args):
     for outl_method_name in outliers_df.keys():
         output_csv_idx = 1
         X, y = outliers_df[outl_method_name]
+        
+                
         # if there is any outliers detected with outl_method_name
         print(f'Outlieres detected by {outl_method_name}: {len(X)}')
         if len(X) > 10:
+            train_test_set: dict = {}
+            train_test_filename = f"{serialized_preproce_data_dir}/{outl_method_name}_train_test_set"
+            if exists(f"{train_test_filename}.pickle") and not recompute_data:
+                train_test_set = deserialize_data(f"{train_test_filename}.pickle")
+            else:
+                train_test_set = buil_train_test_set(X, y)
+                serialize_data(train_test_set, f"{train_test_filename}", recompute_data)
             best_outl_model = {}
             # distinct number of features to select for each method of feature selection
             for n_features_to_select in [3, 6, 9]:
@@ -129,7 +148,7 @@ def main(args):
                     df_sel_feats: pd.DataFrame = pd.DataFrame(
                         X[features_selected_set])
 
-                    ms_results = select_model(df_sel_feats, y, model_input_name)
+                    ms_results = select_model(train_test_set, model_input_name)
                     #confusion_m
                     for model_selected_name, result, prec, recall,  acc, f1, confusion_m in ms_results:
                         print(f"----- Results with {model_selected_name} model and {outl_method_name} outlier mehotd-----")

@@ -254,4 +254,76 @@ def print_outliers_detected()-> str:
     df['Número de Anomalías'] = [134, 446, 181, 95, 0]
     return df.to_latex()
 
-print(print_outliers_detected())
+
+
+def print_latex_result(model_result: dict):
+    df = pd.DataFrame()
+    keys = []
+    values = []
+    for key in model_result.keys():
+        if (key !='f1_score_train' and key !="confusion_matrix_path"
+            and key != "n_outliers"):
+            
+            if key == 'best-config':
+                temp = ""
+                config_keys = []
+                config_values = []
+                for k, v in model_result[key].items():
+                    temp += f"{k}: {v}, "
+                    config_keys.append(k)
+                    config_values.append(v)
+                df2 = pd.DataFrame()
+                df2['Hyperparams'] = config_keys
+                df2['Value'] = config_values
+                print("------Configuración de hiperparámetros del modelo------")
+                print(df2.to_latex(index=False))
+            else:
+                if key == "f1_score_test":
+                    keys.append("F1_score")
+                elif key == "precision_test":
+                    keys.append("Precision")
+                elif key == "recall_test":
+                    keys.append("Recall")
+                elif key == "accuracy_test":
+                    keys.append("Accuracy")
+                else:
+                    keys.append(key)
+                values.append(model_result[key])
+    df['Keys'] = keys
+    df['Values'] = values
+    return df.to_latex(index=False)
+
+
+
+print("------Resultados------")
+print(print_latex_result(
+{
+            "outliers_method": "ocsvm",
+            "feature_selector": "forward_selection",
+            "features_selected_set": [
+                "X Gyro",
+                "Y Gyro",
+                "Z Gyro",
+                "X / Z",
+                "MeanDevAccelY",
+                "MeanDevAccelZ",
+                "MedianDevGyroY",
+                "MeanDevGyroZ",
+                "MedianDevGyroZ"
+            ],
+            "model": "Random Forest",
+            "best-config": {
+                "criterion": "gini",
+                "max_depth": 20,
+                "max_features": "sqrt",
+                "n_estimators": 120
+            },
+            "f1_score_train": 0.25875019331037635,
+            "f1_score_test": 0.2926829268292683,
+            "precision_test": 0.75,
+            "recall_test": 0.18181818181818182,
+            "accuracy_test": 0.7835820895522388,
+            "confusion_matrix_path": "data/images/1e34c2a8-6ac5-11ed-a6b2-bbf57c35a274-Random Forest.png",
+            "n_outliers": 446
+        }
+))
