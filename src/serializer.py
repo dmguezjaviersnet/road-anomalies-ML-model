@@ -1,8 +1,9 @@
 import pickle
-from os import mkdir, path
+from os import mkdir, path, remove
+from os.path import exists
 
 
-def serialize_data(data, file_name: str) -> None:
+def serialize_data(data, file_name: str, recompute: bool = False) -> None:
     '''
         Serialize object into a pickle file.
         
@@ -15,6 +16,10 @@ def serialize_data(data, file_name: str) -> None:
 
     if not path.exists("./serialized_data"):
         mkdir("./serialized_data")
+
+    # remove prev_compute_data
+    if recompute and exists(f"{file_name}.pickle"):
+        remove(f"{file_name}.pickle")
 
     make_pickle_file(file_name, data)
 

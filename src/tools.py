@@ -22,11 +22,25 @@ g_e = 9.807
 # Threshold fofr Z-THRESH HEURISTIC
 z_thresh_threshold = round(0.25*g_e + g_e, 6)
 # Threshold for Z-DIFF HEURISTIC
-z_diff_threshold = round(7, 6)
+z_diff_threshold = 4
 # Threshold for G-ZERO HEURISTIC
-g_zero_threshold = round(0.8*g_e, 6)
+# round(0.8*g_e, 6)
+g_zero_threshold = 0.8
 
 valid_model_names = ["knn", "dt", "rf", "logr", "svm"]
+
+# ---Best hyperparams confs for clustering algs---
+# DBSCAN 
+best_dbscan_eps: float = 0.99
+best_dbscan_min_samples:int  = 15
+# OCSVM
+best_ocsvm_gamma: float = 1e-05 
+best_ocsvm_nu: float = 0.05
+# OPTICS
+best_optics_min_samples: int = 15
+best_optics_method: str = 'xi'
+best_optics_metric1: str = 'canberra'
+best_optics_metric2: str = 'braycurtis'
 
 def create_req_dirs() -> None:
     '''
@@ -100,7 +114,7 @@ def remove_split_scores(df: pd.DataFrame) -> pd.DataFrame:
     return df[df.columns.drop(list(df.filter(regex=regex)))]
 
 
-def save_to_json(new_data: dict, filename: str, key: str ="configs") -> None:
+def save_to_json(new_data: dict, filename: str, swap: bool, key: str ="configs") -> None:
     '''
         Save a dataframe to a json file.
 
@@ -118,7 +132,12 @@ def save_to_json(new_data: dict, filename: str, key: str ="configs") -> None:
             # Join new_data with file_data inside configs
             #  If file_data already has key, then append to it
             if key in file_data:
-                file_data[key].append(new_data)
+                if swap:
+                    data_config = file_data[key][0]
+                    if new_data["f1_score_test"] > data_config["f1_score_test"]:
+                        file_data[key] = [new_data]
+                else:
+                    file_data[key].append(new_data)
             else:
             # If file_data doesn't have key, then add it and new_datas
                 file_data[key] = [new_data]
@@ -196,4 +215,115 @@ def print_latex_svm_config()-> str:
 
     return df.to_latex()
 
-print(print_latex_svm_config())
+def print_silhouette_route_results()-> str:
+    df =  pd.DataFrame()
+    df['Ruta'] = ['Ruta1', 'Ruta2', 'Ruta3']
+    df['DBSCAN'] = ['0.502849', '0.659878', '0.620526']
+    df['OCSVM']  = ['0.533472', '0.533707', '0.509438']
+    df['OPTICS'] = ['-0.245268', '-0.271357', '-0.238291']
+    return df.to_latex()
+
+def print_silhouette_mean_results()-> str:
+    df = pd.DataFrame()
+    df['Mean'] = ['0.594417', '0.525539', '-0.251639']
+    df['Algoritmo'] = ['DBSCAN', 'OCSVM', 'OPTICS']
+    return df.to_latex()
+
+def print_dbscan_hparams_conf()-> str:
+    df = pd.DataFrame()
+    df['eps'] = ['0.05, 0.1, 0.15, 0.20, ... 0.90, 0.95, 0.99']
+    df['min_samples'] = ['15, 20, 25, 30, 25, 40,  45, 50, 55, 60, 65']
+    return df.to_latex()
+
+def print_ocsvm_hparams_conf()-> str:
+    df = pd.DataFrame()
+    df['gamma'] = ['scale, 0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10']
+    df['nu'] = ['0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.99']
+    return df.to_latex()
+
+def print_optics_hparams_conf()-> str:
+    df = pd.DataFrame()
+    df['cluster_method'] = ["xi, dbscan"]
+    df['metric'] = ["minkowski, euclidean, canberra, braycurtis"]
+    df['min_samples'] = ['5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65']
+    return df.to_latex()
+
+def print_outliers_detected()-> str:
+    df = pd.DataFrame()
+    df['Algoritmo'] = ['DBSCAN', 'OCSVM', 'z-diff', 'z-tresh', 'g_zero']
+    df['Número de Anomalías'] = [134, 446, 181, 95, 0]
+    return df.to_latex()
+
+
+
+def print_latex_result(model_result: dict):
+    df = pd.DataFrame()
+    keys = []
+    values = []
+    for key in model_result.keys():
+        if (key !='f1_score_train' and key !="confusion_matrix_path"
+            and key != "n_outliers"):
+            
+            if key == 'best-config':
+                temp = ""
+                config_keys = []
+                config_values = []
+                for k, v in model_result[key].items():
+                    temp += f"{k}: {v}, "
+                    config_keys.append(k)
+                    config_values.append(v)
+                df2 = pd.DataFrame()
+                df2['Hyperparams'] = config_keys
+                df2['Value'] = config_values
+                print("------Configuración de hiperparámetros del modelo------")
+                print(df2.to_latex(index=False))
+            else:
+                if key == "f1_score_test":
+                    keys.append("F1_score")
+                elif key == "precision_test":
+                    keys.append("Precision")
+                elif key == "recall_test":
+                    keys.append("Recall")
+                elif key == "accuracy_test":
+                    keys.append("Accuracy")
+                else:
+                    keys.append(key)
+                values.append(model_result[key])
+    df['Keys'] = keys
+    df['Values'] = values
+    return df.to_latex(index=False)
+
+
+
+print("------Resultados------")
+print(print_latex_result(
+{
+            "outliers_method": "ocsvm",
+            "feature_selector": "forward_selection",
+            "features_selected_set": [
+                "X Gyro",
+                "Y Gyro",
+                "Z Gyro",
+                "X / Z",
+                "MeanDevAccelY",
+                "MeanDevAccelZ",
+                "MedianDevGyroY",
+                "MeanDevGyroZ",
+                "MedianDevGyroZ"
+            ],
+            "model": "Random Forest",
+            "best-config": {
+                "criterion": "gini",
+                "max_depth": 20,
+                "max_features": "sqrt",
+                "n_estimators": 120
+            },
+            "f1_score_train": 0.25875019331037635,
+            "f1_score_test": 0.2926829268292683,
+            "precision_test": 0.75,
+            "recall_test": 0.18181818181818182,
+            "accuracy_test": 0.7835820895522388,
+            "confusion_matrix_path": "data/images/1e34c2a8-6ac5-11ed-a6b2-bbf57c35a274-Random Forest.png",
+            "n_outliers": 446
+        }
+))

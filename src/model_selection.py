@@ -63,7 +63,34 @@ def get_confusion_matrix(y_test, y_pred):
     conf_matrix = confusion_matrix(y_true=y_test, y_pred=y_pred)
     return conf_matrix
 
-def select_model(series_outls: pd.DataFrame, class_vector: list[int], model_name: str, scaled:bool=False) -> list[tuple[str, pd.DataFrame]]:
+def buil_train_test_set(series_outls, class_vector):
+    scaler = StandardScaler()
+    series_outls_scaled = pd.DataFrame(
+        scaler.fit_transform(series_outls), columns=series_outls.columns
+    )
+
+    X_train_scaled, X_test_scaled, y_train_scaled, y_test_scaled = train_test_split(
+        series_outls_scaled, class_vector, train_size=0.7
+    )
+    X_train, X_test, y_train, y_test = train_test_split(
+        series_outls, class_vector, train_size=0.7
+    )
+
+    return {
+        # Not Scaled
+        "X_train": X_train,
+        "X_test": X_test,
+        "y_train": y_train,
+        "y_test": y_test,
+        # Scaled 
+        'X_train_scaled': X_train_scaled,
+        'X_test_scaled': X_test_scaled, 
+        'y_train_scaled': y_train_scaled, 
+        'y_test_scaled': y_test_scaled
+        
+    }
+
+def select_model(train_test_set: dict, model_name: str, scaled:bool=False) -> list[tuple[str, pd.DataFrame]]:
     '''
         Train and evaluate several Machine Learning supervised methods to find the one
         that fits the best to this particular time series data-set.
@@ -81,18 +108,13 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int], model_name
     search results pandas dataframe.
 
     '''
+    # 
+    X_train_scaled, X_test_scaled, y_train_scaled, y_test_scaled = (train_test_set["X_train_scaled"], 
+    train_test_set["X_test_scaled"], train_test_set["y_train_scaled"], train_test_set["y_test_scaled"])
 
-    scaler = StandardScaler()
-    series_outls_scaled = pd.DataFrame(
-        scaler.fit_transform(series_outls), columns=series_outls.columns
-    )
-
-    X_train_scaled, X_test_scaled, y_train_scaled, y_test_scaled = train_test_split(
-        series_outls_scaled, class_vector, train_size=0.7
-    )
-    X_train, X_test, y_train, y_test = train_test_split(
-        series_outls, class_vector, train_size=0.7
-    )
+    X_train, X_test, y_train, y_test = (train_test_set["X_train"], train_test_set["X_test"], 
+    train_test_set["y_train"], train_test_set["y_test"])
+    
 
     knn_param_grid = [
         {
@@ -135,16 +157,17 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int], model_name
             'penalty': ['l2'],
             'tol': [1e-3, 1e-4, 1e-5, 1e-6],
             # 'tol': [1e-3, 1e-5],
-            'C': [1, 10, 100, 1000],
+            'C': [1, 10, 100],
             # 'C': [1, 100],
             'solver': ['lbfgs', 'saga'],
-            'max_iter': [100, 500, 1000]
+            'max_iter': [100, 500, 1000],
+            #'l1_ratio': [0.1, 0.5, 0.9],
             # 'max_iter': [100, 500]
         },
         # {
         #     'penalty': ['l1'],
         #     'tol': [1e-3, 1e-4, 1e-5, 1e-6],
-        #     'C': [1, 10, 100, 1000],
+        #     'C': [1, 10, 100, 100],
         #     'solver': ['saga'],
         #     'max_iter': [100, 500, 1000],
         #     'l1_ratio': [1]
@@ -160,13 +183,13 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int], model_name
         {
             # 'C': [1, 10, 100, 1000],
             # "C": [1, 10, 100, 1000],
-            "C": [100],
+            "C": [1, 10, 50, 100, 1000],
             # 'kernel': ['poly', 'rbf', 'sigmoid'],
             # 'kernel': ['rbf', 'sigmoid'],
             'kernel': ['rbf'],
             # 'degree': [3, 4],
             # 'gamma': [0.01, 0.001, 0.0001],
-            "gamma": [0.01, 0.001],
+            "gamma": [0.1, 0.01, 0.001, 0.0001, 0.00001],
             "probability": [True],
         }
     ]
@@ -200,7 +223,7 @@ def select_model(series_outls: pd.DataFrame, class_vector: list[int], model_name
             best_m_recall_score = recall_score(y_test_scaled, y_pred)
             best_m_accuracy_score = accuracy_score(y_test_scaled, y_pred)
             best_m_f1_score = f1_score(y_test_scaled, y_pred)
-            confusion_matrix_test = get_confusion_matrix(y_train_scaled, y_pred)
+            confusion_matrix_test = get_confusion_matrix(y_test_scaled, y_pred)
             print("----------------------------------------------------")
             print("--------------Test-Results-------------------------------")
             print("Precision: %.3f" % best_m_precision_score)
