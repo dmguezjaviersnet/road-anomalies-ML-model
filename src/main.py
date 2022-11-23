@@ -2,13 +2,15 @@ from unittest import result
 from tabulate import tabulate
 from IPython.display import display
 
+from sys import argv
+import time
 from data_processing import export_df_to_csv, marks_json_to_df, json_samples_to_df
 from features_processing import add_features, feature_selection, remove_noise_features, load_feature_df_count, update_csv_feature_df_count
 from outls_labeling import label_outls
 from outls_plots import outls_scatter
 from outls_detection import detect_outls, filter_outliers
 from windowing_process import build_windows
-from tools import samples_dir, marks_dir, create_req_dirs, save_to_json, best_configs_dir, serialized_preproce_data_dir
+from tools import samples_dir, marks_dir, create_req_dirs, save_to_json, best_configs_dir, serialized_preproce_data_dir, valid_model_names
 from model_selection import select_model, export_confusion_matrix, buil_train_test_set
 import pandas as pd
 from os.path import exists
@@ -192,4 +194,4 @@ def main(args):
     print(f"--------Time to complete code {(time.time() - start_time)//60} minutes and {round((time.time() - start_time)%60, 2)} seconds ----" )        
 
 if __name__ == "__main__":
-    main()
+    main(argv)
