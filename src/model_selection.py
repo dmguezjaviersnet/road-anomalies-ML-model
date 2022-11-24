@@ -33,7 +33,7 @@ from sklearn.model_selection import (
 
 import pandas as pd
 import matplotlib.pyplot as plt
-from tools import remove_split_scores, images_dir
+from tools import remove_split_scores, images_dir, output_rtest_locations_dir
 
 
 def print_confusion_matrix(conf_matrix):
@@ -45,6 +45,10 @@ def print_confusion_matrix(conf_matrix):
 def export_confusion_matrix(confusion_matrix, filename):
     plt = get_plot_confusion_matrix(confusion_matrix)
     plt.savefig(f"{images_dir}/{filename}.png")
+
+def export_locations_outputs_df_to_csv(data: pd.DataFrame, filename: str):
+    data.to_csv(f"{output_rtest_locations_dir}/{filename}.csv", index=False)
+    
 
 def get_plot_confusion_matrix(conf_matrix):
     fig, ax = plt.subplots(figsize=(5, 5))
@@ -69,26 +73,49 @@ def buil_train_test_set(series_outls, class_vector):
         scaler.fit_transform(series_outls), columns=series_outls.columns
     )
 
+    X_test_location = pd.DataFrame()
+    X_test_scaled_location = pd.DataFrame()
+
     X_train_scaled, X_test_scaled, y_train_scaled, y_test_scaled = train_test_split(
         series_outls_scaled, class_vector, train_size=0.7
     )
     X_train, X_test, y_train, y_test = train_test_split(
         series_outls, class_vector, train_size=0.7
     )
-
+    X_test_location["Latitude"] = X_test["Latitude"]
+    X_test_location["Longitude"] = X_test["Longitude"]
+    X_test_scaled_location["Latitude"] = X_test_scaled["Latitude"]
+    X_test_scaled_location["Longitude"] = X_test_scaled["Longitude"]
+    # 'Latitude', 'Longitude'
+    X_train = X_train.drop(["Latitude", "Longitude"], axis=1)
+    X_train_scaled = X_train_scaled.drop(["Latitude", "Longitude"], axis=1)
+    X_test = X_test.drop(["Latitude", "Longitude"], axis=1)
+    X_test_scaled = X_test_scaled.drop(["Latitude", "Longitude"], axis=1)
+    
     return {
         # Not Scaled
         "X_train": X_train,
         "X_test": X_test,
+        "X_test_location": X_test_location,
         "y_train": y_train,
         "y_test": y_test,
         # Scaled 
         'X_train_scaled': X_train_scaled,
         'X_test_scaled': X_test_scaled, 
+        'X_test_scaled_location': X_test_scaled_location,
         'y_train_scaled': y_train_scaled, 
         'y_test_scaled': y_test_scaled
         
     }
+
+def keep_only_featured_selected(data: dict, features_selected):
+    
+    data["X_train"] = data["X_train"][features_selected]
+    data["X_test"] = data["X_test"][features_selected]
+    data["X_train_scaled"] = data["X_train_scaled"][features_selected]
+    data["X_test_scaled"] = data["X_test_scaled"][features_selected]
+    
+    return data
 
 def select_model(train_test_set: dict, model_name: str, scaled:bool=False) -> list[tuple[str, pd.DataFrame]]:
     '''
@@ -230,6 +257,13 @@ def select_model(train_test_set: dict, model_name: str, scaled:bool=False) -> li
             print("Accuracy: %.3f" % best_m_accuracy_score)
             print("F1: %.3f" % best_m_f1_score)
             print("Recall: %.3f" % best_m_recall_score)
+            compare_result_points = pd.DataFrame()
+            result_location = train_test_set["X_test_scaled_location"] if scaled else train_test_set["X_test_location"]
+
+            compare_result_points["Latitude"] = result_location["Latitude"]
+            compare_result_points["Longitude"] = result_location["Longitude"]
+            compare_result_points["Predicted"] = y_pred
+            compare_result_points["Expected"] = y_test_scaled 
 
             clsf_gs_results = (
                 clsf_name,
@@ -238,7 +272,9 @@ def select_model(train_test_set: dict, model_name: str, scaled:bool=False) -> li
                 best_m_recall_score,
                 best_m_accuracy_score,
                 best_m_f1_score,
-                confusion_matrix_test
+                confusion_matrix_test,
+                compare_result_points
+
             )
 
         else:
@@ -250,6 +286,14 @@ def select_model(train_test_set: dict, model_name: str, scaled:bool=False) -> li
             best_m_accuracy_score = accuracy_score(y_test_scaled if scaled else y_test, y_pred)
             best_m_f1_score = f1_score(y_test_scaled if scaled else y_test, y_pred)
             confusion_matrix_test = get_confusion_matrix(y_test_scaled if scaled else y_test, y_pred)
+            compare_result_points = pd.DataFrame()
+            result_location = train_test_set["X_test_scaled_location"] if scaled else train_test_set["X_test_location"]
+
+            compare_result_points["Latitude"] = result_location["Latitude"]
+            compare_result_points["Longitude"] = result_location["Longitude"]
+            compare_result_points["Predicted"] = y_pred
+            compare_result_points["Expected"] = y_test_scaled if scaled else y_test
+
             print("----------------------------------------------------")
             print("--------------Test-Results-------------------------------")
             print("Precision: %.3f" % best_m_precision_score)
@@ -263,7 +307,8 @@ def select_model(train_test_set: dict, model_name: str, scaled:bool=False) -> li
                 best_m_recall_score,
                 best_m_accuracy_score,
                 best_m_f1_score,
-                confusion_matrix_test
+                confusion_matrix_test,
+                compare_result_points
             )
 
         results.append(clsf_gs_results)
