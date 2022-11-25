@@ -16,7 +16,7 @@ test_csvs_dir = Path("./data/grid-search-results")
 best_configs_dir = Path("./data/best-configs")
 features_count_dir = Path("./data/feature-selected-count")
 images_dir = Path("./data/images")
-
+output_rtest_locations_dir = Path("./data/csvs/output_rtest_locations")
 # Earth Gravity: 9.807 m/s²
 g_e = 9.807
 # Threshold fofr Z-THRESH HEURISTIC
@@ -49,7 +49,8 @@ def create_req_dirs() -> None:
     '''
 
     required_dirs = [data_dir, csvs_dir, marks_dir, samples_dir, proc_samples_dir,
-                     marks_google_dir, test_csvs_dir, best_configs_dir, features_count_dir, serialized_preproce_data_dir, images_dir]
+                    marks_google_dir, test_csvs_dir, best_configs_dir, features_count_dir, 
+                    serialized_preproce_data_dir, images_dir, output_rtest_locations_dir]
 
     for req_dir in required_dirs:
         if not exists(req_dir):
@@ -293,37 +294,49 @@ def print_latex_result(model_result: dict):
     df['Values'] = values
     return df.to_latex(index=False)
 
+def load_top_10_features():
+    f_name = 'features_count'
+    df  = pd.read_csv(f"{features_count_dir}/{f_name}.csv")
+    latex_df = pd.DataFrame()
+    latex_df['Feature'] = df.columns.values
+    latex_df['Count'] = df.values[0]
+    latex_df = latex_df.sort_values('Count', ascending=False)
+    latex_df = latex_df.head(10)
+    return latex_df.to_latex(index=False)
+
+
 
 
 print("------Resultados------")
-print(print_latex_result(
-{
-            "outliers_method": "ocsvm",
-            "feature_selector": "forward_selection",
-            "features_selected_set": [
-                "X Gyro",
-                "Y Gyro",
-                "Z Gyro",
-                "X / Z",
-                "MeanDevAccelY",
-                "MeanDevAccelZ",
-                "MedianDevGyroY",
-                "MeanDevGyroZ",
-                "MedianDevGyroZ"
-            ],
-            "model": "Random Forest",
-            "best-config": {
-                "criterion": "gini",
-                "max_depth": 20,
-                "max_features": "sqrt",
-                "n_estimators": 120
-            },
-            "f1_score_train": 0.25875019331037635,
-            "f1_score_test": 0.2926829268292683,
-            "precision_test": 0.75,
-            "recall_test": 0.18181818181818182,
-            "accuracy_test": 0.7835820895522388,
-            "confusion_matrix_path": "data/images/1e34c2a8-6ac5-11ed-a6b2-bbf57c35a274-Random Forest.png",
-            "n_outliers": 446
-        }
-))
+# print(load_top_10_features())
+# print(print_latex_result(
+# {
+#             "outliers_method": "ocsvm",
+#             "feature_selector": "forward_selection",
+#             "features_selected_set": [
+#                 "X Gyro",
+#                 "Y Gyro",
+#                 "Z Gyro",
+#                 "X / Z",
+#                 "MeanDevAccelY",
+#                 "MeanDevAccelZ",
+#                 "MedianDevGyroY",
+#                 "MeanDevGyroZ",
+#                 "MedianDevGyroZ"
+#             ],
+#             "model": "Random Forest",
+#             "best-config": {
+#                 "criterion": "gini",
+#                 "max_depth": 20,
+#                 "max_features": "sqrt",
+#                 "n_estimators": 120
+#             },
+#             "f1_score_train": 0.25875019331037635,
+#             "f1_score_test": 0.2926829268292683,
+#             "precision_test": 0.75,
+#             "recall_test": 0.18181818181818182,
+#             "accuracy_test": 0.7835820895522388,
+#             "confusion_matrix_path": "data/images/1e34c2a8-6ac5-11ed-a6b2-bbf57c35a274-Random Forest.png",
+#             "n_outliers": 446
+#         }
+# ))

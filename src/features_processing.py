@@ -183,6 +183,7 @@ def feature_selection(X: pd.DataFrame, y: list[int], features_to_select: int):
 
 
 def remove_noise_features(time_series: pd.DataFrame):
+    # 'Latitude', 'Longitude'
     time_series = time_series.drop(
-        ['Latitude', 'Longitude', 'Accuracy', 'Speed'], axis=1)
+        [ 'Accuracy', 'Speed'], axis=1)
     return time_series

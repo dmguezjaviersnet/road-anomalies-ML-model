@@ -10,13 +10,13 @@ from outls_labeling import label_outls
 from outls_plots import outls_scatter
 from outls_detection import detect_outls, filter_outliers
 from windowing_process import build_windows
-from tools import samples_dir, marks_dir, create_req_dirs, save_to_json, best_configs_dir, serialized_preproce_data_dir, valid_model_names
-from model_selection import select_model, export_confusion_matrix, buil_train_test_set
+from tools import samples_dir, marks_dir, create_req_dirs, save_to_json, best_configs_dir, serialized_preproce_data_dir
+from model_selection import select_model, export_confusion_matrix, buil_train_test_set, export_locations_outputs_df_to_csv, keep_only_featured_selected
 import pandas as pd
 from os.path import exists
 from serializer import serialize_data, deserialize_data
-from tools import generate_unique_id_matrix, images_dir
-
+from tools import generate_unique_id_matrix, images_dir, valid_model_names, output_rtest_locations_dir
+import copy
 
 def main(args):
     model_input_name: str = "knn"
@@ -131,8 +131,10 @@ def main(args):
             else:
                 train_test_set = buil_train_test_set(X, y)
                 serialize_data(train_test_set, f"{train_test_filename}", recompute_data)
+            # print(train_test_set["X_test_location"])
             best_outl_model = {}
             # distinct number of features to select for each method of feature selection
+            X = X.drop(['Latitude', 'Longitude'], axis=1)
             for n_features_to_select in [3, 6, 9]:
                 features_selected_sets = feature_selection(
                     X, y, n_features_to_select)
@@ -147,12 +149,13 @@ def main(args):
                     update_csv_feature_df_count(f_df)
                     print(f"Features selected with selector {selector_name}")
                     print(f"{features_selected_set}\n")
-                    df_sel_feats: pd.DataFrame = pd.DataFrame(
-                        X[features_selected_set])
-
-                    ms_results = select_model(train_test_set, model_input_name)
+                    # df_sel_feats: pd.DataFrame = pd.DataFrame(
+                    #     X[features_selected_set])
+                    new_train_test_set = copy.deepcopy(train_test_set)
+                    new_train_test_set = keep_only_featured_selected(new_train_test_set, features_selected_set)
+                    ms_results = select_model(new_train_test_set, model_input_name, True)
                     #confusion_m
-                    for model_selected_name, result, prec, recall,  acc, f1, confusion_m in ms_results:
+                    for model_selected_name, result, prec, recall,  acc, f1, confusion_m , loc_points in ms_results:
                         print(f"----- Results with {model_selected_name} model and {outl_method_name} outlier mehotd-----")
                         print(f"{result}\n\n")
                         matrix_id = generate_unique_id_matrix(model_selected_name)
@@ -169,6 +172,7 @@ def main(args):
                             "recall_test": recall,
                             "accuracy_test": acc,
                             "confusion_matrix_path": f"{images_dir}/{matrix_id}.png",
+                            "location_points_path": f"{output_rtest_locations_dir}/{matrix_id}.csv",
                             "n_outliers": len(X)         
                             }
                         if best_model_config:
@@ -180,10 +184,12 @@ def main(args):
                         else:
                             best_outl_model = config
                         export_confusion_matrix(confusion_m, matrix_id)
+                        
                         save_to_json(
                             config, f"{best_configs_dir}/{model_selected_name}-results.json", False)
                         export_df_to_csv(
                             result, f"{model_selected_name}-Results-{output_csv_idx}")
+                        export_locations_outputs_df_to_csv(loc_points,f"{matrix_id}")
             output_csv_idx += 1
             model_name_best_config = best_outl_model["model"]
             save_to_json(best_outl_model, f"{best_configs_dir}/{model_name_best_config}-results.json", True, f"best-{outl_method_name}")
