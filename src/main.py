@@ -21,6 +21,7 @@ from tools import generate_unique_id_matrix, images_dir
 def main(args):
     model_input_name: str = "knn"
     recompute_data: bool =  False
+
     if len(args) > 1:
         if args[1] in valid_model_names:
             model_input_name = args[1]
